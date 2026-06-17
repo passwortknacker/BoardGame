@@ -287,6 +287,16 @@ func _test_save_restore() -> void:
 	# schema guard rejects an unknown future version
 	var bad := snap.duplicate(); bad["schema_version"] = 999
 	ok(not Game.new(1).restore(bad), "restore rejects a mismatched schema_version")
+	# undo semantics: mutate state, then restore reverts to the checkpoint
+	var g4 := Game.new(55); g4.setup(2)
+	var snap2 := g4.snapshot()
+	var boss_before := g4.boss
+	var hand_before: int = g4.players[0].hand.size()
+	g4.boss -= 15
+	if g4.players[0].hand.size() > 0: g4.players[0].hand.pop_back()
+	g4.restore(snap2)
+	eq(g4.boss, boss_before, "undo: boss HP restored")
+	eq(g4.players[0].hand.size(), hand_before, "undo: hand restored")
 
 func _test_end_conditions() -> void:
 	var g := _mkgame()
