@@ -13,14 +13,16 @@ Godot **4.3+** (standard, GDScript — no C#/.NET needed).
   is an interactive **feel demo** driven by the real engine: a fanned hand of animated cards, click
   to play (hover-lift, play-fly, floating combat numbers, screenshake), a tweened boss HP bar with
   telegraph, and procedural SFX. It's the presentation reference, not the final board UI.
-- **Headless self-test** (the analogue of `python -m sim.validate` + `run_sim.py`):
+- **Headless tests** (the analogue of `python -m sim.validate` + `run_sim.py`):
   ```
   godot --headless --path godot --import                       # first run only: builds the class cache
-  godot --headless --path godot --script res://tests/run_headless.gd
+  godot --headless --path godot --script res://tests/run_headless.gd    # smoke + determinism + balance
+  godot --headless --path godot --script res://tests/test_effects.gd    # behavioural assertions
   ```
-  Checks data load, effect coverage, seeded determinism, runs smoke games, prints win-rate samples,
-  and lists any approximated effect ops. **Verified on Godot 4.3** — all checks pass; sample win
-  rates (role comps) ≈ 2p 11% / 3p 51% / 4p 40%, consistent with the Python sim's randomized market.
+  **Verified on Godot 4.3** — `run_headless` passes (coverage, determinism, 200 smoke games, **all
+  effect ops implemented**; role-comp win rates ≈ 2p 20% / 3p 56% / 4p 45%, consistent with the
+  Python sim's randomized market). `test_effects` passes 40 behavioural assertions (combat,
+  targeting, prevention, discard cap, market, abilities, boss ops, deferred ops, win/lose).
 
 ## Presentation target: Hearthstone-tier
 The finished game targets Hearthstone-comparable graphics, animation, and sound. The scaffold is
@@ -71,9 +73,9 @@ affinity, abilities/ultimates, the full Red Dragon boss/minion/disaster loop, wi
 common card-effect ops (mana, damage, AoE, heal, village heal, prevention, draw, affinity, slots,
 mana-scaling, dmg-scaling, discard retrieval with the 1×/turn cap, tutors, refire).
 
-**Deferred to the vertical slice** (acknowledged at runtime via `g.warnings`, so games still run):
-a handful of exotic single-card ops (e.g. `bloodRitual`, `fateArbiter`, `genesisEdge`,
-`divineFavor`, optional self-destroy). The headless test prints which ops were approximated.
+**All player + boss effect ops are now implemented** (bloodRitual, divineFavor, triggerVillage,
+villageReduce, optional destroy, pass-wisp, fate/genesis, pacifier, etc.) — `run_headless` reports
+zero approximated ops. `g.warnings` remains as a guard for any future unmapped op.
 
 **Presentation scaffold (this pass):** event bus, audio manager + bus layout + placeholder SFX,
 juice helpers, an animated `CardView`, and an engine-driven feel demo. Real art/audio, the full

@@ -76,29 +76,54 @@ static func _player_op(g: Game, p, ctx, op: Dictionary) -> void:
 	elif op.has("selfdmg"):
 		p.hp -= int(op["selfdmg"])
 	elif op.has("villageStrike"):
-		g.attack_target(p, int(op["villageStrike"]))   # approx: treated as enemy damage
+		# Armed Militia: _trigger_village(bonus). Encoded value is the non-ult total; +4 if ultimate.
+		_trigger_village(g, p, int(op["villageStrike"]) - 2)
+	elif op.has("triggerVillage"):
+		_trigger_village(g, p, 0)               # Townsaver rider: 2 dmg, or 6 at Ultimate
+	elif op.has("villageReduce"):
+		g.village -= int(op["villageReduce"])   # Collateral Carnage: unpreventable village chip
 	elif op.has("postponeBoss"):
 		g._postpone_boss = true
 	elif op.has("pacifier"):
 		g.attack_target(p, max(0, g.PLAYER_HP - p.hp))
+		g.anger = max(0, g.anger - 2)
 	elif op.has("bloodfire"):
 		var spend := min(2, max(0, p.hp - 1))
 		p.hp -= spend
 		g.attack_target(p, 2 + 2 * spend)
+	elif op.has("bloodRitual"):
+		p.hp -= 2
+		_execute_or_aoe(g, p, 4)                # kill the biggest minion, else 4 AoE
+	elif op.has("fateArbiter"):
+		if not g.minions.is_empty(): _execute_or_aoe(g, p, 0)
+		else: _draw(g, p, 1)
+	elif op.has("genesisEdge"):
+		if not g.minions.is_empty():
+			for m in g.minions.duplicate(): g.boss_discard.append(m.card_name)
+			g.minions.clear()
+		else:
+			for q in g.living(): _draw(g, q, 1)
+	elif op.has("divineFavor"):
+		var w: bool = _count_hand(p, "Weapon") > 0
+		var a: bool = p.equipped.size() > 0
+		ctx.mana += 1 + (1 if (w or a) else 0) + (1 if (w and a) else 0)
 	elif op.has("tryAbility") or op.has("secretTechnique"):
 		Abilities.use_ability(g, p, ctx)
-	elif op.has("destroyDraw") or op.has("dmgOrDraw"):
-		if op.has("dmgOrDraw"): g.attack_target(p, int(op["dmgOrDraw"].get("dmg", 3)))
-		else: _draw(g, p, 1)
+	elif op.has("dmgOrDraw"):
+		g.attack_target(p, int(op["dmgOrDraw"].get("dmg", 3)))
+	elif op.has("destroyDraw"):
+		if _destroy_one(g, p): _draw(g, p, 1)   # Composter / Worthy Sacrifice
+	elif op.has("optionalDestroy"):
+		_destroy_one(g, p, op["optionalDestroy"].get("cat", null))
+	elif op.has("passWisp"):
+		var nb = g.players[(p.pid + 1) % g.players.size()]
+		nb.discard.append("Wandering Wisp")
 	elif op.has("helpingHand") or op.has("encourage"):
-		from_discard(g, p, ctx, "Weapon")
+		if not from_discard(g, p, ctx, "Weapon"): tutor(g, p, "Artifact", 4, true)
 	elif op.has("reshuffleMarket"):
 		g.build_market()
-	elif op.has("optionalDestroy") or op.has("optionalSelfDestroy") or op.has("passWisp") \
-			or op.has("bloodRitual") or op.has("divineFavor") or op.has("fateArbiter") \
-			or op.has("genesisEdge") or op.has("triggerVillage") or op.has("villageReduce") \
-			or op.has("slayer"):
-		g.warn_op(op.keys()[0])   # foundation: acknowledged, behavior deferred to vertical slice
+	elif op.has("optionalSelfDestroy") or op.has("slayer"):
+		pass   # AI keeps the card / slayer already resolved as damage above
 	else:
 		g.warn_op("unknown:" + str(op.keys()))
 
@@ -150,6 +175,32 @@ static func replay_weapon_from_discard(g: Game, p, ctx) -> bool:
 			ctx.weapons_played += 1
 			apply_player(g, p, ctx, CardDB.fx(name))
 			return true
+	return false
+
+## Village-attack rider (Townsaver/Armed Militia): 2 dmg to an enemy, 6 at Ultimate, + bonus.
+static func _trigger_village(g: Game, p, bonus: int) -> void:
+	g.attack_target(p, (6 if p.ultimate() else 2) + bonus, false)
+
+## Defeat the highest-HP minion (counting its HP as damage dealt); else deal `fallback` AoE.
+static func _execute_or_aoe(g: Game, p, fallback: int) -> void:
+	if not g.minions.is_empty():
+		var m = g.minions[0]
+		for x in g.minions:
+			if x.hp > m.hp: m = x
+		g.dmg_accum += m.hp
+		g.minions.erase(m)
+		g.boss_discard.append(m.card_name)
+	elif fallback > 0:
+		g.aoe(fallback)
+
+## Deck-thinning: destroy (remove from game) a Mana Crystal from hand/discard if present.
+## Mirrors the sim AI auto-pick (thin a basic Mana Crystal, else keep all). Returns true if removed.
+static func _destroy_one(g: Game, p, only_cat = null) -> bool:
+	for zone in [p.hand, p.discard]:
+		for name in zone:
+			if name == "Mana Crystal" and (only_cat == null or CardDB.cat(name) == only_cat):
+				zone.erase(name)
+				return true
 	return false
 
 static func refire(g: Game, p, ctx, n: int) -> int:
