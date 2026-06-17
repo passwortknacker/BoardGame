@@ -1,0 +1,22 @@
+# Normalize line endings: text stored and checked out as LF (silences CRLF warnings on Windows).
+* text=auto eol=lf
+
+*.gd    text eol=lf
+*.py    text eol=lf
+*.md    text eol=lf
+*.txt   text eol=lf
+*.json  text eol=lf
+*.tscn  text eol=lf
+*.tres  text eol=lf
+*.cfg   text eol=lf
+*.godot text eol=lf
+
+# Binary assets — never normalize.
+*.wav  binary
+*.ogg  binary
+*.png  binary
+*.jpg  binary
+*.pdf  binary
+*.docx binary
+*.xlsx binary
+*.import binary

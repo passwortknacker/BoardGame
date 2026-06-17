@@ -26,6 +26,7 @@ Godot **4.3+** (standard, GDScript — no C#/.NET needed).
   godot --headless --path godot --import                       # first run only: builds the class cache
   godot --headless --path godot --script res://tests/run_headless.gd    # smoke + determinism + balance
   godot --headless --path godot --script res://tests/test_effects.gd    # behavioural assertions
+  godot --headless --path godot --script res://tests/rank_combos.gd     # rank class comps (engine balance)
   ```
   **Verified on Godot 4.3** — `run_headless` passes (coverage, determinism, 200 smoke games, **all
   effect ops implemented**; role-comp win rates ≈ 2p 20% / 3p 56% / 4p 45%, consistent with the
@@ -90,6 +91,13 @@ juice helpers, an animated `CardView`, and an engine-driven feel demo. Real art/
 board UI, drag-to-play & target/choice pickers, meta (shop/progression/saves), localization, and
 Steam/mobile export are still ahead — see `assets/ART_DIRECTION.md` and `../docs/GAME_PLAN.md`
 Phases 2–5.
+
+## Engine balance snapshot (30 games/combo, `rank_combos.gd`)
+Top comps the **Godot engine** itself produces (Cleric is near-mandatory; 2p is hardest — matching
+the design and the Python sim's qualitative picture):
+- **2p:** Cleric+Wizard ~67% · Ranger+Cleric ~57% (all-combo avg ~22%)
+- **3p:** Cleric+Wizard+Bard ~97% · Ranger+Cleric+Wizard ~97% (avg ~51%)
+- **4p:** Ranger+Cleric+Wizard+Bard ~100% (avg ~46%)
 
 ## Parity note
 The Python `sim/` remains the historical reference. Per the game plan, the Godot engine is now the
