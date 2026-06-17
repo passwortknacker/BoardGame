@@ -96,6 +96,14 @@ structurally hardest by design. `data/top_combos.json` still holds the *old* num
 
 ## Changelog
 
+- **v0.5.5** (2026-06-17) — Godot: schema-versioned save/restore (`snapshot`/`restore`/file I/O),
+  RNG-state-exact, deterministic resume verified through a JSON round-trip.
+- **v0.5.4** — Godot: Hearthstone-style drag-to-play cards; assertion suite expanded.
+- **v0.5.3** — Godot combo-ranking tool (`rank_combos.gd`); `.gitattributes` LF normalization.
+- **v0.5.2** — Godot vertical-slice demo: real co-op turn loop (mana economy, market drawer,
+  affinity/ability/slots, End Turn → AI ally + boss response).
+- **v0.5.1** — Godot: all deferred effect ops implemented; 52-assert behavioural test suite.
+  Installed Godot 4.3 and **verified the engine end-to-end** (smoke/determinism/assertions pass).
 - **v0.5.0** (2026-06-17) — **Godot 4 build foundation** (`godot/`): authoritative headless rules
   engine ported to GDScript (deterministic RNG, randomized market, abilities, full boss loop,
   data-driven effects), single content source `godot/data/cards.json` (`tools/export_godot_data.py`),
