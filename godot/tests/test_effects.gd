@@ -19,6 +19,7 @@ func _initialize() -> void:
 	_test_boss_ops()
 	_test_deferred_ops()
 	_test_engine_misc()
+	_test_scaling_cards()
 	_test_save_restore()
 	_test_end_conditions()
 	print("== %d passed, %d failed ==" % [passed, failed])
@@ -188,6 +189,46 @@ func _test_engine_misc() -> void:
 	g3.players[0].hp = 0
 	g3.players[1].hp = 6
 	eq(g3.lowest_heal_target().pid, 0, "lowest_heal_target picks the downed hero first")
+
+func _test_scaling_cards() -> void:
+	# Real card fx (data + resolver together) for the context-scaling cards.
+	# Multiplier Maul: 2 * weapons_played + affinity.
+	var g := _mkgame()
+	var p = g.players[0]
+	p.affinity = 2
+	g.ctx.weapons_played = 2
+	_apply(g, p, CardDB.fx("Multiplier Maul"))
+	eq(g.boss, 60 - (2 * 2 + 2), "Multiplier Maul = 2*weapons + affinity")
+	# Artificer's Fury: 1 + 2 * equipped artifacts.
+	var g2 := _mkgame()
+	g2.players[0].equipped.append(Game.Equip.new("Ethereal Fragment", 0))
+	g2.players[0].equipped.append(Game.Equip.new("Ethereal Fragment", 0))
+	_apply(g2, g2.players[0], CardDB.fx("Artificer's Fury"))
+	eq(g2.boss, 60 - (1 + 2 * 2), "Artificer's Fury = 1 + 2*equipped")
+	# Mana Cannon: 5 + 2 * affinity (hits boss, ignores minions).
+	var g3 := _mkgame()
+	g3.players[0].affinity = 3
+	_apply(g3, g3.players[0], CardDB.fx("Mana Cannon"))
+	eq(g3.boss, 60 - (5 + 2 * 3), "Mana Cannon = 5 + 2*affinity")
+	# Arcane Secrets: +1 mana, then +1 per OTHER mana card used this turn.
+	var g4 := _mkgame()
+	g4.ctx.mana_cards_used = 3
+	_apply(g4, g4.players[0], CardDB.fx("Arcane Secrets"))
+	eq(g4.ctx.mana, 1 + 2, "Arcane Secrets = +1 and +1 per other mana card (3-1)")
+	# Source Dynamo: +1, +1 more if any artifact equipped (bonusIf).
+	var g5 := _mkgame()
+	_apply(g5, g5.players[0], CardDB.fx("Source Dynamo"))
+	eq(g5.ctx.mana, 1, "Source Dynamo = +1 with no artifact")
+	var g6 := _mkgame()
+	g6.players[0].equipped.append(Game.Equip.new("Ethereal Fragment", 0))
+	_apply(g6, g6.players[0], CardDB.fx("Source Dynamo"))
+	eq(g6.ctx.mana, 2, "Source Dynamo = +2 with an artifact equipped")
+	# Wizard refire (Arcane Retrieval): a charged artifact fires again.
+	var g7 := _mkgame()
+	g7.players[0].turn_no = 1
+	g7.players[0].equipped.append(Game.Equip.new("Ethereal Fragment", 1))   # 3 dmg, charged
+	_apply(g7, g7.players[0], CardDB.fx("Arcane Retrieval"))
+	eq(g7.boss, 57, "Arcane Retrieval re-fires the equipped artifact (3 dmg)")
 
 func _test_save_restore() -> void:
 	# Advance a real game a couple of rounds, snapshot mid-game, then resume two ways and require
