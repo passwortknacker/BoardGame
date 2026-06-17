@@ -95,6 +95,30 @@ platform/    Tauri (desktop/Steam) + Capacitor (mobile) configs
 - *Localization/telemetry retrofits are expensive* → bake string-externalization + analytics in early.
 
 ## This pass delivers
-A runnable, animated **web feel-prototype** in `game/` (open `game/index.html`) implementing the core
+A runnable, animated **web feel-prototype** in `web/` (open `web/index.html`) implementing the core
 battle loop with graphics for a subset of cards — the interactive reference the Godot build follows.
 Shipping engine = Godot 4 (your confirmation needed at the decision gate).
+
+## Phase 2 foundation — BUILT (2026-06-17, v0.5.0)
+The Godot 4 build foundation now exists in `godot/` (see `godot/README.md`):
+- **Authoritative headless engine** ported to GDScript (`godot/engine/`): deterministic seeded RNG,
+  data models, randomized tier market, affinity, abilities/ultimates, full boss/minion/disaster
+  loop, win/lose, and a **data-driven** effect resolver (common card ops; a few exotic ops deferred
+  and tallied at runtime).
+- **Single content source** `godot/data/cards.json` generated from the xlsx via
+  `tools/export_godot_data.py` (all 101 player cards + 40 boss-deck cards as structured ops).
+- **Headless self-test** `godot/tests/run_headless.gd` (coverage + determinism + smoke + win-rate
+  sample) — the GDScript analogue of `sim.validate`/`run_sim`.
+- **Presentation scaffold built for the Hearthstone-tier target** (`godot/game/`): event bus,
+  audio manager + Master→Music/SFX bus layout + procedural placeholder SFX
+  (`tools/gen_placeholder_sfx.py`), `Juice.gd` motion primitives, an animated `CardView`, and an
+  **engine-driven feel demo** (`Demo.tscn`: fanned animated hand, click-to-play with floating combat
+  text + screenshake + tweened boss bar + SFX). Art direction + asset pipeline in
+  `godot/assets/ART_DIRECTION.md`.
+
+**Decided:** art/animation/audio target = **Hearthstone-comparable**; scaffold reflects it. Still
+open: art budget/sourcing (see ART_DIRECTION) and confirming the per-card art pipeline before
+scaling to all 142 cards.
+
+**Next (vertical slice):** real board UI replacing the demo, drag-to-play + target/choice pickers,
+the full turn loop in-UI, art/audio pass, then meta (Phase 3).

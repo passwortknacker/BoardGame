@@ -1,0 +1,45 @@
+; Engine configuration file (Godot 4).
+; Red Dragon — commercial build. Authoritative rules: engine/ (headless, deterministic).
+; Presentation: game/ (Hearthstone-tier target — card animation, particles, audio).
+; Content: data/cards.json (generated from Cards_Data.xlsx).
+
+config_version=5
+
+[application]
+
+config/name="Red Dragon"
+config/description="Co-op deckbuilding boss-battler vs. the Red Dragon."
+run/main_scene="res://game/Demo.tscn"
+config/features=PackedStringArray("4.3", "Forward Plus")
+
+[autoload]
+
+Events="*res://game/Events.gd"
+AudioManager="*res://game/AudioManager.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[audio]
+
+buses/default_bus_layout="res://assets/audio/default_bus_layout.tres"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=1
+anti_aliasing/quality/msaa_2d=1
+
+[debug]
+
+gdscript/warnings/treat_warnings_as_errors=false
+gdscript/warnings/untyped_declaration=0
+gdscript/warnings/inference_on_variant=0
+gdscript/warnings/unsafe_method_access=0
+gdscript/warnings/unsafe_property_access=0
+gdscript/warnings/unsafe_cast=0

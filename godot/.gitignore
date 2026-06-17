@@ -1,0 +1,12 @@
+# Godot 4 editor cache & import artifacts
+.godot/
+*.import
+
+# Export builds
+/build/
+/export/
+export_presets.cfg
+
+# OS noise
+.DS_Store
+Thumbs.db

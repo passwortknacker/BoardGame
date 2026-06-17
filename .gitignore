@@ -7,13 +7,14 @@ venv/
 
 # ── Large binary assets (card art + source documents) ──
 # Kept LOCAL only — too large for Git (see README "Assets"). Regenerate exports from data/.
-assets/
+# Anchored to repo root so godot/assets/ (audio, art, docs) is NOT excluded.
+/assets/
 /Image Cards.docx
 /Image Cards.pdf
 ~$*
 
 # ── Generated / derived artifacts ──────────────────────
-logs/
+/logs/
 data/caches/
 
 # ── Editor / agent local config ────────────────────────

@@ -1,6 +1,6 @@
 # Red Dragon — Marvin's Co-op Deckbuilding Boss-Battler
 
-**Version: v0.4.0** — *prototype / pre-alpha* (2026-06-17)
+**Version: v0.5.0** — *prototype / pre-alpha* (2026-06-17)
 
 A cooperative deckbuilding boss-battler: 2–4 heroes plus a shared **Village** fight the **Red
 Dragon**. Built on the Aeon's End → Astro Knights chassis (randomized turn order, supply market,
@@ -38,8 +38,11 @@ Play the browser prototype: open [`web/index.html`](web/index.html) directly, or
 │   ├── cards.py engine.py effects.py abilities.py boss.py ai.py game.py validate.py
 ├── tools/                 ← batch sims, exports & playtest entry points
 │   ├── run_sim.py rank_combos.py trace_game.py calibrate_boss.py winrate_topcombos.py
-│   ├── export_web_cards.py export_top_combos.py audit_web_fx.py play.py
+│   ├── export_web_cards.py export_top_combos.py export_godot_data.py audit_web_fx.py play.py
+│   ├── gen_placeholder_sfx.py
 │   └── legacy/            ← archived data-build / OCR / macro-model scripts (reference only)
+├── godot/                 ← GODOT 4 BUILD (shipping target): headless engine + presentation
+│   ├── engine/  data/cards.json  game/  assets/  tests/   (see godot/README.md)
 ├── web/                   ← browser feel-prototype (index.html, game.js, generated *_data.js)
 ├── data/                  ← source-of-truth + generated data
 │   ├── Cards_Data.xlsx    ← ★ master card data (edit in place; never auto-regenerate)
@@ -93,6 +96,14 @@ structurally hardest by design. `data/top_combos.json` still holds the *old* num
 
 ## Changelog
 
+- **v0.5.0** (2026-06-17) — **Godot 4 build foundation** (`godot/`): authoritative headless rules
+  engine ported to GDScript (deterministic RNG, randomized market, abilities, full boss loop,
+  data-driven effects), single content source `godot/data/cards.json` (`tools/export_godot_data.py`),
+  a headless self-test, and a **Hearthstone-tier presentation scaffold** (event bus, audio
+  manager + bus layout + procedural SFX, juice helpers, animated `CardView`, engine-driven feel
+  demo). See `godot/README.md` and `godot/assets/ART_DIRECTION.md`.
+- **v0.4.1** (2026-06-17) — Fixed the infinite discard-replay loop (two mutual Weapon retrievers,
+  e.g. 2× Arsenal Enforcer): a card may now be pulled back from discard at most once per turn.
 - **v0.4.0** (2026-06-17) — Sim market aligned to the online test build: **randomized 15-slot tier
   market** replaces open supply (`sim/engine.py` `build_market`/`market_choices`/`replace_market_slot`,
   `sim/ai.py` `do_buys`). Fixed two latent crashes (self-refiring artifact recursion; double-remove

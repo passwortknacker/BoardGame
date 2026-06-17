@@ -1,0 +1,2245 @@
+{
+  "version": "0.5.0-godot-foundation",
+  "config": {
+    "boss_base": 40,
+    "boss_slope": 10,
+    "village_base": 20,
+    "village_slope": 10,
+    "player_hp": 10,
+    "boss_n": 12,
+    "minion_n": 7,
+    "disaster_n": 6,
+    "slot_cost": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "charge_turns": 1,
+    "hand_size": 5,
+    "round_cap": 16,
+    "market_spec": [
+      [
+        "Mana",
+        "Moderate"
+      ],
+      [
+        "Mana",
+        "Moderate"
+      ],
+      [
+        "Mana",
+        "Greater"
+      ],
+      [
+        "Mana",
+        "Greater"
+      ],
+      [
+        "Weapon",
+        "Light"
+      ],
+      [
+        "Weapon",
+        "Light"
+      ],
+      [
+        "Weapon",
+        "Heavy"
+      ],
+      [
+        "Weapon",
+        "Heavy"
+      ],
+      [
+        "Artifact",
+        "Ancient"
+      ],
+      [
+        "Artifact",
+        "Ancient"
+      ],
+      [
+        "Artifact",
+        "Common"
+      ],
+      [
+        "Artifact",
+        "Common"
+      ],
+      [
+        "Support",
+        null
+      ],
+      [
+        "Support",
+        null
+      ],
+      [
+        "Support",
+        null
+      ]
+    ],
+    "tier2": [
+      "Ancient",
+      "Greater",
+      "Heavy"
+    ]
+  },
+  "classes": [
+    "Ranger",
+    "Paladin",
+    "Druid",
+    "Cleric",
+    "Wizard",
+    "Weaponmaster",
+    "Enchanter",
+    "Blacksmith",
+    "Bard"
+  ],
+  "players": {
+    "Aid the Weak": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Cleric",
+      "text": "+1 Mana Increase by 1/2/3 if your HP is equal to or less than 9/6/3",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "stat": "missingHp",
+            "step": [
+              1,
+              4,
+              7
+            ]
+          }
+        }
+      ]
+    },
+    "Arcane Secrets": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Wizard",
+      "text": "+1 Mana per other Mana Card used this turn",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "per": 1,
+            "stat": "otherMana"
+          }
+        }
+      ]
+    },
+    "Bardic Inspiration": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Bard",
+      "text": "+1 Mana Increase by 1/2/3 if Boss Anger is at least 1/3/5",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "stat": "anger",
+            "step": [
+              1,
+              3,
+              5
+            ]
+          }
+        }
+      ]
+    },
+    "Blacksmith's Pride": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Blacksmith",
+      "text": "+1 Mana. Increase by 1/2/3 if you have 1/3/4 Weapons in your Hand",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "stat": "weaponsHand",
+            "step": [
+              1,
+              3,
+              4
+            ]
+          }
+        }
+      ]
+    },
+    "Cycle of Life": {
+      "cat": "Support",
+      "cost": 0,
+      "tier": null,
+      "cls": "Druid",
+      "text": "Move 1 Support Card from your Discard pile onto your Hand",
+      "fx": [
+        {
+          "fromDiscard": {
+            "cat": "Support"
+          }
+        }
+      ]
+    },
+    "Divine Favor": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Paladin",
+      "text": "+ 1 Mana Increase by 1/2/3 if an Artifact or Weapon is equipped, both, or 2 of each",
+      "fx": [
+        {
+          "divineFavor": true
+        }
+      ]
+    },
+    "Magic Veil": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Enchanter",
+      "text": "1 Player may use 1 Artifact without discarding it",
+      "fx": [
+        {
+          "refire": 1
+        }
+      ]
+    },
+    "Mana Crystal": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "All",
+      "text": "+1 Mana",
+      "fx": [
+        {
+          "mana": 1
+        }
+      ]
+    },
+    "Martial Focus": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Weaponmaster",
+      "text": "+1 Mana. Increase by 1/2/3 if you have 1/3/5 Weapons in your Discard Pile",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "stat": "weaponsDiscard",
+            "step": [
+              1,
+              3,
+              5
+            ]
+          }
+        }
+      ]
+    },
+    "Aegis Elixir": {
+      "cat": "Mana",
+      "cost": 3,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+2 Mana Increase Village HP by +2",
+      "fx": [
+        {
+          "mana": 2
+        },
+        {
+          "vheal": 2
+        }
+      ]
+    },
+    "Bladesurge Stone": {
+      "cat": "Mana",
+      "cost": 3,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+1 Mana. Increase by 1/2/3 if you have 1/3/5 Weapons in your Hand",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "stat": "weaponsHand",
+            "step": [
+              1,
+              3,
+              5
+            ]
+          }
+        }
+      ]
+    },
+    "Druidic Tonic": {
+      "cat": "Mana",
+      "cost": 3,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+2 Mana 1 Player heals 2 HP",
+      "fx": [
+        {
+          "mana": 2
+        },
+        {
+          "heal": 2,
+          "who": "self"
+        }
+      ]
+    },
+    "Ethereal Catalyst": {
+      "cat": "Mana",
+      "cost": 4,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+2 Mana You may use your ability",
+      "fx": [
+        {
+          "mana": 2
+        },
+        {
+          "tryAbility": true
+        }
+      ]
+    },
+    "Faithful Brew": {
+      "cat": "Mana",
+      "cost": 4,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+3 Mana. +2 Village HP",
+      "fx": [
+        {
+          "mana": 3
+        },
+        {
+          "vheal": 2
+        }
+      ]
+    },
+    "Mana Conduit": {
+      "cat": "Mana",
+      "cost": 4,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+2 Mana Increase Affinity Level by 1",
+      "fx": [
+        {
+          "mana": 2
+        },
+        {
+          "affinity": 1
+        }
+      ]
+    },
+    "Mana Resonator": {
+      "cat": "Mana",
+      "cost": 3,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+1 Mana Increase by 1/2/3 if you have equipped 1/3/5 Artifacts",
+      "fx": [
+        {
+          "scaleMana": {
+            "b": 1,
+            "per": 1,
+            "stat": "artifactsEq",
+            "step": [
+              1,
+              3,
+              5
+            ]
+          }
+        }
+      ]
+    },
+    "Mystical Arcanum": {
+      "cat": "Mana",
+      "cost": 5,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+2 Mana Draw a Card",
+      "fx": [
+        {
+          "mana": 2
+        },
+        {
+          "draw": 1
+        }
+      ]
+    },
+    "Resupply Rune": {
+      "cat": "Mana",
+      "cost": 5,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+3 Mana If you gain a Card this turn, place it on your Deck",
+      "fx": [
+        {
+          "mana": 3
+        }
+      ]
+    },
+    "Sorcerous Affinity": {
+      "cat": "Mana",
+      "cost": 4,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+1 Mana. +1 Mana for every Affinity Level you have",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "per": 1,
+            "stat": "aff"
+          }
+        }
+      ]
+    },
+    "Wild Magic Flux": {
+      "cat": "Mana",
+      "cost": 5,
+      "tier": "Greater",
+      "cls": "All",
+      "text": "+3 Mana Reshuffle all Supply Piles you want",
+      "fx": [
+        {
+          "mana": 3
+        },
+        {
+          "reshuffleMarket": true
+        }
+      ]
+    },
+    "Artifact Hexcore": {
+      "cat": "Mana",
+      "cost": 3,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+2 Mana You may destroy it and move 1 Artifact worth 5 Mana or less from the Supply Pile to your Discard Pile",
+      "fx": [
+        {
+          "mana": 2
+        },
+        {
+          "optionalTutor": {
+            "cat": "Artifact",
+            "max": 5,
+            "self": true
+          }
+        }
+      ]
+    },
+    "Attuned Elixir": {
+      "cat": "Mana",
+      "cost": 3,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+1 Mana. Gain 1 Artifact slot (max 5)",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "slot": 1
+        }
+      ]
+    },
+    "Elemental Surge": {
+      "cat": "Mana",
+      "cost": 2,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+1 Mana Deal 1 DMG",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Mana Converter": {
+      "cat": "Mana",
+      "cost": 2,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+1 Mana You may destroy a Mana Card in your Hand or Discard Pile",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "optionalDestroy": {
+            "cat": "Mana"
+          }
+        }
+      ]
+    },
+    "Mana Orb": {
+      "cat": "Mana",
+      "cost": 3,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+3 Mana",
+      "fx": [
+        {
+          "mana": 3
+        }
+      ]
+    },
+    "Mystic Infusion": {
+      "cat": "Mana",
+      "cost": 3,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+2 Mana. 1 Player heals 2 HP",
+      "fx": [
+        {
+          "mana": 2
+        },
+        {
+          "heal": 2,
+          "who": "self"
+        }
+      ]
+    },
+    "Source Dynamo": {
+      "cat": "Mana",
+      "cost": 2,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+1 Mana Increase by 1 if you have an Artifact equipped",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "bonusIf": {
+            "stat": "artifactsEq",
+            "min": 1,
+            "add": 1
+          }
+        }
+      ]
+    },
+    "Spellblade Energon": {
+      "cat": "Mana",
+      "cost": 2,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+1 Mana Increase by 1 if you have a Weapon in your Hand",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "bonusIf": {
+            "stat": "weaponsHand",
+            "min": 1,
+            "add": 1
+          }
+        }
+      ]
+    },
+    "Support Hexcore": {
+      "cat": "Mana",
+      "cost": 2,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+2 Mana You may destroy it and move 1 Support Card for 5 Mana or less from the Supply Pile to your Discard Pile",
+      "fx": [
+        {
+          "mana": 2
+        },
+        {
+          "optionalTutor": {
+            "cat": "Support",
+            "max": 5,
+            "self": true
+          }
+        }
+      ]
+    },
+    "Vital Essence": {
+      "cat": "Mana",
+      "cost": 2,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+1 Mana 1 Player heals 1 HP",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "heal": 1,
+          "who": "self"
+        }
+      ]
+    },
+    "Weapon Hexcore": {
+      "cat": "Mana",
+      "cost": 3,
+      "tier": "Moderate",
+      "cls": "All",
+      "text": "+2 Mana You may destroy it and move 1 Weapon worth 5 Mana or less from the Supply Pile to your Discard Pile",
+      "fx": [
+        {
+          "mana": 2
+        },
+        {
+          "optionalTutor": {
+            "cat": "Weapon",
+            "max": 5,
+            "self": true
+          }
+        }
+      ]
+    },
+    "Anger Management": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": null,
+      "cls": "Bard",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Bow": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": null,
+      "cls": "Ranger",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Forge Hammer": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": null,
+      "cls": "Blacksmith",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Helping Hand": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": null,
+      "cls": "Paladin",
+      "text": "Move 1 Weapon from your Discard to your Hand, or fetch 1 Artifact (4 Mana or less) from the Supply to your Hand",
+      "fx": [
+        {
+          "helpingHand": true
+        }
+      ]
+    },
+    "Longsword": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": null,
+      "cls": "Weaponmaster",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Sickle": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": null,
+      "cls": "Druid",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Warhammer": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": null,
+      "cls": "Paladin",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Zither": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": null,
+      "cls": "Bard",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Bounty Bringer": {
+      "cat": "Weapon",
+      "cost": 5,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "3 DMG You may destroy it and move 1 Card worth 8 Mana or less from the Supply Pile to your Discard Pile",
+      "fx": [
+        {
+          "dmg": 3
+        },
+        {
+          "optionalTutor": {
+            "cat": null,
+            "max": 8,
+            "self": true
+          }
+        }
+      ]
+    },
+    "Celestial Slicer": {
+      "cat": "Weapon",
+      "cost": 8,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "7 DMG or draw 3 Cards collectively (at most 2 per Player)",
+      "fx": [
+        {
+          "dmgOrDraw": {
+            "dmg": 7,
+            "drawTotal": 3,
+            "maxPerPlayer": 2
+          }
+        }
+      ]
+    },
+    "Collateral Carnage": {
+      "cat": "Weapon",
+      "cost": 8,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "9 DMG The Village loses 1 HP",
+      "fx": [
+        {
+          "dmg": 9
+        },
+        {
+          "villageReduce": 1
+        }
+      ]
+    },
+    "Fate's Arbiter": {
+      "cat": "Weapon",
+      "cost": 6,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "Defeat 1 Minion or draw 1 Card",
+      "fx": [
+        {
+          "fateArbiter": true
+        }
+      ]
+    },
+    "Genesis Edge": {
+      "cat": "Weapon",
+      "cost": 10,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "Destroy all Minions or every Player draws one Card",
+      "fx": [
+        {
+          "genesisEdge": true
+        }
+      ]
+    },
+    "Mace of Renewal": {
+      "cat": "Weapon",
+      "cost": 6,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "3 DMG Draw 1 Card",
+      "fx": [
+        {
+          "dmg": 3
+        },
+        {
+          "draw": 1
+        }
+      ]
+    },
+    "Mana Cannon": {
+      "cat": "Weapon",
+      "cost": 9,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "5 DMG plus 2 DMG per Affinity Level, to one enemy",
+      "fx": [
+        {
+          "dmgAff": {
+            "b": 5,
+            "per": 2
+          }
+        }
+      ]
+    },
+    "Multiplier Maul": {
+      "cat": "Weapon",
+      "cost": 6,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "2 DMG for every Weapon you played this turn (including this one). +1 DMG for every Affinity Level",
+      "fx": [
+        {
+          "dmgWeapons": {
+            "per": 2,
+            "aff": 1
+          }
+        }
+      ]
+    },
+    "Pacifier": {
+      "cat": "Weapon",
+      "cost": 8,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "1 DMG for every missing HP Decrease Boss Anger by 2",
+      "fx": [
+        {
+          "pacifier": true
+        }
+      ]
+    },
+    "Purification Spear": {
+      "cat": "Weapon",
+      "cost": 5,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "4 DMG 1 Player may destroy 1 Card in their Hand or Discard Pile",
+      "fx": [
+        {
+          "dmg": 4
+        },
+        {
+          "optionalDestroy": {}
+        }
+      ]
+    },
+    "Arsenal Enforcer": {
+      "cat": "Weapon",
+      "cost": 5,
+      "tier": "Light",
+      "cls": "All",
+      "text": "2 DMG Move 1 Weapon from your Discard Pile onto your Hand",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "fromDiscard": {
+            "cat": "Weapon"
+          }
+        }
+      ]
+    },
+    "Groveguard Knuckles": {
+      "cat": "Weapon",
+      "cost": 4,
+      "tier": "Light",
+      "cls": "All",
+      "text": "2 DMG +2 Village HP",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "vheal": 2
+        }
+      ]
+    },
+    "Lifedrain Blade": {
+      "cat": "Weapon",
+      "cost": 3,
+      "tier": "Light",
+      "cls": "All",
+      "text": "2 DMG 1 Player heals 2 HP",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "heal": 2,
+          "who": "self"
+        }
+      ]
+    },
+    "Relic Reclaimer": {
+      "cat": "Weapon",
+      "cost": 5,
+      "tier": "Light",
+      "cls": "All",
+      "text": "2 DMG Fetch 1 Artifact worth 5 Mana or less from the Supply to your Hand",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "tutorHand": {
+            "cat": "Artifact",
+            "max": 5
+          }
+        }
+      ]
+    },
+    "Spellshard": {
+      "cat": "Weapon",
+      "cost": 4,
+      "tier": "Light",
+      "cls": "All",
+      "text": "2 DMG You may use your ability",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "tryAbility": true
+        }
+      ]
+    },
+    "Swapsteel Dirk": {
+      "cat": "Weapon",
+      "cost": 3,
+      "tier": "Light",
+      "cls": "All",
+      "text": "2 DMG You may destroy it and move 1 Weapon worth 5 Mana or less from the Supply Pile to your Discard Pile",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "optionalTutor": {
+            "cat": "Weapon",
+            "max": 5,
+            "self": true
+          }
+        }
+      ]
+    },
+    "Thunderstrike": {
+      "cat": "Weapon",
+      "cost": 4,
+      "tier": "Light",
+      "cls": "All",
+      "text": "2 DMG to every enemy",
+      "fx": [
+        {
+          "aoe": 2
+        }
+      ]
+    },
+    "Tinblade": {
+      "cat": "Weapon",
+      "cost": 2,
+      "tier": "Light",
+      "cls": "All",
+      "text": "2 DMG You may destroy it after use",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "optionalSelfDestroy": true
+        }
+      ]
+    },
+    "Townsaver": {
+      "cat": "Weapon",
+      "cost": 5,
+      "tier": "Light",
+      "cls": "All",
+      "text": "3 DMG You may use the village ability",
+      "fx": [
+        {
+          "dmg": 3
+        },
+        {
+          "triggerVillage": true
+        }
+      ]
+    },
+    "Clergy Staff": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": "Light",
+      "cls": "Cleric",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Drain the Horde": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Ranger",
+      "text": "+1 Mana. Increase by 1 for every active Minion",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "per": 1,
+            "stat": "minions"
+          }
+        }
+      ]
+    },
+    "Grimoire": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": "Light",
+      "cls": "Wizard",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Mana Resonance": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Enchanter",
+      "text": "+1 Mana Increase by 1/2/3 if any Player has equipped 1/3/5 Artifacts",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "stat": "maxArts",
+            "step": [
+              1,
+              3,
+              5
+            ]
+          }
+        }
+      ]
+    },
+    "Pocket Arsenal": {
+      "cat": "Artifact",
+      "cost": 0,
+      "tier": null,
+      "cls": "Wizard",
+      "text": "1 Player may attack with 1 Weapon without discarding it",
+      "fx": [
+        {
+          "replayWeapon": true
+        }
+      ]
+    },
+    "Affinity Beacon": {
+      "cat": "Artifact",
+      "cost": 6,
+      "tier": "Ancient",
+      "cls": "All",
+      "text": "2 DMG plus 2 DMG per Affinity Level (minimum 4, maximum 8). Separate attacks",
+      "fx": [
+        {
+          "dmgAff": {
+            "b": 2,
+            "per": 2,
+            "min": 4,
+            "max": 8
+          }
+        }
+      ]
+    },
+    "Arcane Chalice": {
+      "cat": "Artifact",
+      "cost": 7,
+      "tier": "Ancient",
+      "cls": "All",
+      "text": "3 DMG. 1 Player or the Village heals 2 HP",
+      "fx": [
+        {
+          "dmg": 3
+        },
+        {
+          "vhealOrHeal": true
+        }
+      ]
+    },
+    "Artificer's Fury": {
+      "cat": "Weapon",
+      "cost": 7,
+      "tier": "Heavy",
+      "cls": "All",
+      "text": "1 DMG. +2 DMG for every equipped Artifact you have",
+      "fx": [
+        {
+          "dmgArt": {
+            "b": 1,
+            "per": 2
+          }
+        }
+      ]
+    },
+    "Ethereal Fragment": {
+      "cat": "Artifact",
+      "cost": 5,
+      "tier": "Ancient",
+      "cls": "All",
+      "text": "3 DMG split among enemies of your choice",
+      "fx": [
+        {
+          "dmg": 3
+        }
+      ]
+    },
+    "Mystic Seer's Lens": {
+      "cat": "Artifact",
+      "cost": 7,
+      "tier": "Ancient",
+      "cls": "All",
+      "text": "Draw 2 Cards",
+      "fx": [
+        {
+          "draw": 2
+        }
+      ]
+    },
+    "Power Cube": {
+      "cat": "Artifact",
+      "cost": 9,
+      "tier": "Ancient",
+      "cls": "All",
+      "text": "5 DMG or 1 DMG for every equipped Artifact on the table",
+      "fx": [
+        {
+          "dmgScaleArts": {
+            "min": 5
+          }
+        }
+      ]
+    },
+    "Sacrificial Scepter": {
+      "cat": "Artifact",
+      "cost": 5,
+      "tier": "Ancient",
+      "cls": "All",
+      "text": "2 DMG You may destroy it and move 1 Card worth 8 Mana or less from the Supply Pile to your Discard Pile",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "optionalTutor": {
+            "cat": null,
+            "max": 8,
+            "self": true
+          }
+        }
+      ]
+    },
+    "Soulfire Brazier": {
+      "cat": "Artifact",
+      "cost": 8,
+      "tier": "Ancient",
+      "cls": "All",
+      "text": "4 DMG Sacrifice up to 8 HP collectively to increase DMG by 1 per HP spent",
+      "fx": [
+        {
+          "dmg": 4
+        }
+      ]
+    },
+    "Timeless Talisman": {
+      "cat": "Artifact",
+      "cost": 6,
+      "tier": "Ancient",
+      "cls": "All",
+      "text": "Shuffle the next (telegraphed) Boss card back into the Boss deck, then reveal and resolve the following card instead",
+      "fx": [
+        {
+          "postponeBoss": true
+        }
+      ]
+    },
+    "Alliance Amulet": {
+      "cat": "Artifact",
+      "cost": 4,
+      "tier": "Common",
+      "cls": "All",
+      "text": "1 DMG Increase DMG by +2 for every Support Card you used this turn",
+      "fx": [
+        {
+          "dmgSupport": {
+            "b": 1,
+            "per": 2
+          }
+        }
+      ]
+    },
+    "Arcane Tome": {
+      "cat": "Artifact",
+      "cost": 4,
+      "tier": "Common",
+      "cls": "All",
+      "text": "1 DMG Draw a Card",
+      "fx": [
+        {
+          "dmg": 1
+        },
+        {
+          "draw": 1
+        }
+      ]
+    },
+    "Bloodfire Charm": {
+      "cat": "Artifact",
+      "cost": 5,
+      "tier": "Common",
+      "cls": "All",
+      "text": "2 DMG You may sacrifice up to 3 HP for +2 DMG per HP spent",
+      "fx": [
+        {
+          "bloodfire": true
+        }
+      ]
+    },
+    "Eternal Charm": {
+      "cat": "Artifact",
+      "cost": 5,
+      "tier": "Common",
+      "cls": "All",
+      "text": "2 DMG Trigger 1 other equipped Artifact again this turn",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "refire": 1
+        }
+      ]
+    },
+    "Mystic Offering": {
+      "cat": "Artifact",
+      "cost": 3,
+      "tier": "Common",
+      "cls": "All",
+      "text": "2 DMG You may destroy it and move 1 Artifact worth 5 Mana or less from the Supply Pile to your Discard Pile",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "optionalTutor": {
+            "cat": "Artifact",
+            "max": 5,
+            "self": true
+          }
+        }
+      ]
+    },
+    "Mystic Purifier": {
+      "cat": "Artifact",
+      "cost": 5,
+      "tier": "Common",
+      "cls": "All",
+      "text": "2 DMG. You may destroy 1 Card in your Hand or Discard Pile",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "optionalDestroy": {}
+        }
+      ]
+    },
+    "Ring of Arms": {
+      "cat": "Artifact",
+      "cost": 5,
+      "tier": "Common",
+      "cls": "All",
+      "text": "2 DMG Move 1 Weapon from your Discard Pile onto your Hand",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "fromDiscard": {
+            "cat": "Weapon"
+          }
+        }
+      ]
+    },
+    "Slayer's Relic": {
+      "cat": "Artifact",
+      "cost": 4,
+      "tier": "Common",
+      "cls": "All",
+      "text": "2 DMG. If this attack defeats a Minion, gain 1 Artifact slot (up to the 5-slot cap)",
+      "fx": [
+        {
+          "dmg": 2,
+          "slayer": true
+        }
+      ]
+    },
+    "Sustaining Sigil": {
+      "cat": "Artifact",
+      "cost": 4,
+      "tier": "Common",
+      "cls": "All",
+      "text": "2 DMG Move 1 Mana Card from your Discard Pile onto your Hand",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "fromDiscard": {
+            "cat": "Mana"
+          }
+        }
+      ]
+    },
+    "Wandering Wisp": {
+      "cat": "Artifact",
+      "cost": 2,
+      "tier": "Common",
+      "cls": "All",
+      "text": "2 DMG. Does not occupy a slot. Place it on the Discard Pile of the Player to your right",
+      "fx": [
+        {
+          "dmg": 2
+        },
+        {
+          "passWisp": true
+        }
+      ]
+    },
+    "Armed Militia": {
+      "cat": "Support",
+      "cost": 4,
+      "tier": null,
+      "cls": "All",
+      "text": "Trigger the Village ability this turn; it deals +3 DMG",
+      "fx": [
+        {
+          "villageStrike": 5
+        }
+      ]
+    },
+    "Blood Ritual": {
+      "cat": "Support",
+      "cost": 5,
+      "tier": null,
+      "cls": "All",
+      "text": "Sacrifice 2 HP to defeat 1 Minion or to cause all enemies 4 DMG",
+      "fx": [
+        {
+          "bloodRitual": true
+        }
+      ]
+    },
+    "Composter": {
+      "cat": "Support",
+      "cost": 3,
+      "tier": null,
+      "cls": "All",
+      "text": "1 Player may destroy 1 Hand Card and Draw 1 Card or destroy a Card in their Discard Pile",
+      "fx": [
+        {
+          "destroyDraw": true
+        }
+      ]
+    },
+    "Encourage": {
+      "cat": "Support",
+      "cost": 5,
+      "tier": null,
+      "cls": "All",
+      "text": "1 Player may use 1 equipped Artifact again this turn, or play a Weapon from their Discard Pile",
+      "fx": [
+        {
+          "encourage": true
+        }
+      ]
+    },
+    "Fresh Supplies": {
+      "cat": "Support",
+      "cost": 8,
+      "tier": null,
+      "cls": "All",
+      "text": "All Players draw 1 Card, or 3 Cards collectively",
+      "fx": [
+        {
+          "drawAll": 1
+        }
+      ]
+    },
+    "Make A Wish": {
+      "cat": "Support",
+      "cost": 10,
+      "tier": null,
+      "cls": "All",
+      "text": "1 Player may take 1 Card from the Supply Pile and place it on his Discard Pile",
+      "fx": [
+        {
+          "tutor": {
+            "cat": null,
+            "max": 10
+          }
+        }
+      ]
+    },
+    "Natural Selection": {
+      "cat": "Support",
+      "cost": 5,
+      "tier": null,
+      "cls": "All",
+      "text": "1 Player may draw 2 Cards, then discard 1 Card",
+      "fx": [
+        {
+          "draw": 2
+        },
+        {
+          "discard": 1
+        }
+      ]
+    },
+    "Secret Technique": {
+      "cat": "Support",
+      "cost": 4,
+      "tier": null,
+      "cls": "All",
+      "text": "A chosen Player immediately uses their ability for free (the Ultimate version if at Affinity 3+)",
+      "fx": [
+        {
+          "secretTechnique": true
+        }
+      ]
+    },
+    "Well Prepared": {
+      "cat": "Support",
+      "cost": 4,
+      "tier": null,
+      "cls": "All",
+      "text": "Prevent the next 6 damage to a chosen Player or the Village this round",
+      "fx": [
+        {
+          "prevent": 6,
+          "who": "choose"
+        }
+      ]
+    },
+    "Worthy Sacrifice": {
+      "cat": "Support",
+      "cost": 4,
+      "tier": null,
+      "cls": "All",
+      "text": "Up to 2 Players may each destroy 1 Card from their Hand or Discard Pile. A Player who destroyed a Card from their Hand draws 1 Card",
+      "fx": [
+        {
+          "destroyDraw": true
+        }
+      ]
+    },
+    "Arcane Retrieval": {
+      "cat": "Support",
+      "cost": 0,
+      "tier": null,
+      "cls": "Wizard",
+      "text": "Trigger 1 of your equipped Artifacts again",
+      "fx": [
+        {
+          "refire": 1
+        }
+      ]
+    },
+    "Blessing of Faith": {
+      "cat": "Support",
+      "cost": 0,
+      "tier": null,
+      "cls": "Cleric",
+      "text": "You and 1 chosen Player each heal 2 HP",
+      "fx": [
+        {
+          "heal": 2,
+          "who": "lowest"
+        },
+        {
+          "heal": 2,
+          "who": "lowest2"
+        }
+      ]
+    },
+    "Call of Nature": {
+      "cat": "Mana",
+      "cost": 0,
+      "tier": null,
+      "cls": "Druid",
+      "text": "+1 Mana Increase by 1 for every Support Card on your Hand",
+      "fx": [
+        {
+          "mana": 1
+        },
+        {
+          "scaleMana": {
+            "b": 0,
+            "per": 1,
+            "stat": "supportHand"
+          }
+        }
+      ]
+    },
+    "Crimson Scythe": {
+      "cat": "Weapon",
+      "cost": 5,
+      "tier": "Light",
+      "cls": "All",
+      "text": "8 DMG You lose 1 HP",
+      "fx": [
+        {
+          "dmg": 8
+        },
+        {
+          "selfdmg": 1
+        }
+      ]
+    },
+    "Improvised Strike": {
+      "cat": "Support",
+      "cost": 0,
+      "tier": null,
+      "cls": "Weaponmaster",
+      "text": "Move 1 Weapon from your Discard pile onto your Hand",
+      "fx": [
+        {
+          "fromDiscard": {
+            "cat": "Weapon"
+          }
+        }
+      ]
+    },
+    "Rupture Relic": {
+      "cat": "Artifact",
+      "cost": 8,
+      "tier": "Ancient",
+      "cls": "All",
+      "text": "2 DMG for every equipped Artifact (separate attacks)",
+      "fx": [
+        {
+          "dmgArt": {
+            "b": 0,
+            "per": 2
+          }
+        }
+      ]
+    },
+    "Volley": {
+      "cat": "Support",
+      "cost": 0,
+      "tier": null,
+      "cls": "Ranger",
+      "text": "2 DMG to every Enemy",
+      "fx": [
+        {
+          "aoe": 2
+        }
+      ]
+    },
+    "Wand": {
+      "cat": "Weapon",
+      "cost": 0,
+      "tier": "Light",
+      "cls": "Enchanter",
+      "text": "Deal 1 DMG",
+      "fx": [
+        {
+          "dmg": 1
+        }
+      ]
+    },
+    "Aegis Ward": {
+      "cat": "Support",
+      "cost": 3,
+      "tier": null,
+      "cls": "All",
+      "text": "Prevent up to 5 damage to a chosen Player or the Village this round",
+      "fx": [
+        {
+          "prevent": 5,
+          "who": "choose"
+        }
+      ]
+    }
+  },
+  "boss": {
+    "Power Anomaly": {
+      "cat": "Disaster",
+      "text": "All Players lose 1 Affinity Level",
+      "bfx": [
+        {
+          "loseAff": {
+            "who": "all"
+          }
+        }
+      ]
+    },
+    "Absorb Mana": {
+      "cat": "Boss",
+      "text": "2 Players each lose 1 Affinity Level",
+      "bfx": [
+        {
+          "loseAff": {
+            "who": "rand",
+            "k": 2
+          }
+        }
+      ]
+    },
+    "Claw Swipe": {
+      "cat": "Boss",
+      "text": "The Village takes 5 DMG",
+      "bfx": [
+        {
+          "vdmg": 5
+        }
+      ]
+    },
+    "Cutting Wind": {
+      "cat": "Boss",
+      "text": "2 Players take 2 DMG 1 Player discards 2 Cards",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 2,
+            "who": "rand",
+            "k": 2
+          }
+        },
+        {
+          "discard": {
+            "who": "rand",
+            "n": 2,
+            "k": 1
+          }
+        }
+      ]
+    },
+    "Demand Tribute": {
+      "cat": "Boss",
+      "text": "Discard a total of 5 Cards collectively, or Boss Anger +2. The Village takes 3 DMG",
+      "bfx": [
+        {
+          "discardCollective": 5
+        },
+        {
+          "vdmg": 3
+        }
+      ]
+    },
+    "Fiery Explosion": {
+      "cat": "Disaster",
+      "text": "All Players and the Village take 3 DMG",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 3,
+            "who": "all"
+          }
+        },
+        {
+          "vdmg": 3
+        }
+      ]
+    },
+    "Fire Breath": {
+      "cat": "Boss",
+      "text": "All Players take 2 DMG and discard 2 Cards collectively",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 2,
+            "who": "all"
+          }
+        },
+        {
+          "discardCollective": 2
+        }
+      ]
+    },
+    "Flammable Tools": {
+      "cat": "Boss",
+      "text": "All Players discard 2 Cards then draw 1. The Village takes 3 DMG",
+      "bfx": [
+        {
+          "discardCollective": 2
+        },
+        {
+          "drawAll": 1
+        },
+        {
+          "vdmg": 3
+        }
+      ]
+    },
+    "Gear Purge": {
+      "cat": "Disaster",
+      "text": "Every Player discards 1 Weapon or Artifact",
+      "bfx": [
+        {
+          "unequip": {
+            "who": "all"
+          }
+        }
+      ]
+    },
+    "Mana Dominance": {
+      "cat": "Boss",
+      "text": "The Player with the highest Affinity takes 5 DMG",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 5,
+            "who": "highAff"
+          }
+        }
+      ]
+    },
+    "Mana Ignition": {
+      "cat": "Boss",
+      "text": "The Player with the most Mana Cards in Hand takes 1 DMG per Card",
+      "bfx": [
+        {
+          "manaDmg": {
+            "who": "highMana"
+          }
+        }
+      ]
+    },
+    "Minion Frenzy": {
+      "cat": "Disaster",
+      "text": "Trigger the Effects of all active Minions",
+      "bfx": [
+        {
+          "minionsAttack": true
+        }
+      ]
+    },
+    "Minion Onslaught": {
+      "cat": "Boss",
+      "text": "The Village takes 1 DMG Increase by 2 DMG for every Minion",
+      "bfx": [
+        {
+          "vdmgScaleMinions": {
+            "b": 1,
+            "per": 2
+          }
+        }
+      ]
+    },
+    "Predatory Strike": {
+      "cat": "Boss",
+      "text": "The Player with the highest HP takes 5 DMG",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 5,
+            "who": "highHp"
+          }
+        }
+      ]
+    },
+    "Reawakening": {
+      "cat": "Disaster",
+      "text": "Revive the last Minion in the Discard Pile with full HP",
+      "bfx": [
+        {
+          "reviveMinion": {
+            "n": 1
+          }
+        }
+      ]
+    },
+    "Rising Hostility": {
+      "cat": "Boss",
+      "text": "The Village takes 3 DMG +2 Boss Anger",
+      "bfx": [
+        {
+          "vdmg": 3
+        },
+        {
+          "anger": 2
+        }
+      ]
+    },
+    "Scorching Gaze": {
+      "cat": "Boss",
+      "text": "1 Player takes 3 DMG 2 Players discard 1 Card",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 3,
+            "who": "rand",
+            "k": 1
+          }
+        },
+        {
+          "discard": {
+            "who": "rand",
+            "n": 1,
+            "k": 2
+          }
+        }
+      ]
+    },
+    "Shared Sacrifice": {
+      "cat": "Boss",
+      "text": "Discard 1 Card per Player collectively. The Village takes 3 DMG",
+      "bfx": [
+        {
+          "discardCollective": "living"
+        },
+        {
+          "vdmg": 3
+        }
+      ]
+    },
+    "Supply Depletion": {
+      "cat": "Disaster",
+      "text": "All Players discard 2 Cards",
+      "bfx": [
+        {
+          "discardEach": 2
+        }
+      ]
+    },
+    "Tail Attack": {
+      "cat": "Boss",
+      "text": "The Village takes 6 DMG",
+      "bfx": [
+        {
+          "vdmg": 6
+        }
+      ]
+    },
+    "Threatening Glare": {
+      "cat": "Boss",
+      "text": "3 Players take 2 DMG. 2 Players each discard 1 Card",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 2,
+            "who": "rand",
+            "k": 3
+          }
+        },
+        {
+          "discard": {
+            "who": "rand",
+            "n": 1,
+            "k": 2
+          }
+        }
+      ]
+    },
+    "Trade Block": {
+      "cat": "Disaster",
+      "text": "Buying Supply Cards is not possible this round",
+      "bfx": [
+        {
+          "noBuy": true
+        }
+      ]
+    },
+    "Unnatural Disaster": {
+      "cat": "Disaster",
+      "text": "The Village takes 8 DMG",
+      "bfx": [
+        {
+          "vdmg": 8
+        }
+      ]
+    },
+    "Dragon Cultist": {
+      "cat": "Minion",
+      "text": "1 Player takes 3 DMG. 1 Player loses 1 Affinity",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 3,
+            "who": "rand",
+            "k": 1
+          }
+        },
+        {
+          "loseAff": {
+            "who": "rand",
+            "k": 1
+          }
+        }
+      ],
+      "hp": 6
+    },
+    "Dragon Lancer": {
+      "cat": "Minion",
+      "text": "The Player with the most Mana Cards in Hand takes 1 DMG per Card",
+      "bfx": [
+        {
+          "manaDmg": {
+            "who": "highMana"
+          }
+        }
+      ],
+      "hp": 5
+    },
+    "Fire Breather": {
+      "cat": "Minion",
+      "text": "Effect: The Village takes 5 DMG or discard 2 Cards collectively",
+      "bfx": [
+        {
+          "vdmg": 5
+        }
+      ],
+      "hp": 5
+    },
+    "Kobold Archer": {
+      "cat": "Minion",
+      "text": "Effect: 1 Player and the Village  take 2 DMG",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 2,
+            "who": "rand",
+            "k": 1
+          }
+        },
+        {
+          "vdmg": 2
+        }
+      ],
+      "hp": 5
+    },
+    "Kobold Defender": {
+      "cat": "Minion",
+      "text": "1 Player or the Village takes 1 DMG. If the Boss or another Minion would take DMG, redirect to this Minion instead",
+      "bfx": [
+        {
+          "vdmg": 1
+        }
+      ],
+      "hp": 10
+    },
+    "Kobold Horde": {
+      "cat": "Minion",
+      "text": "The Village takes 5 DMG. 1 Player discards 1 Card",
+      "bfx": [
+        {
+          "vdmg": 5
+        },
+        {
+          "discard": {
+            "who": "rand",
+            "n": 1,
+            "k": 1
+          }
+        }
+      ],
+      "hp": 8
+    },
+    "Kobold Marauder": {
+      "cat": "Minion",
+      "text": "1 Player takes 4 DMG, or the Village takes 4 DMG",
+      "bfx": [
+        {
+          "vdmg": 4
+        }
+      ],
+      "hp": 5
+    },
+    "Kobold Shaman": {
+      "cat": "Minion",
+      "text": "1 DMG per Player collectively. 1 Player loses 1 Affinity",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": "livingHalf",
+            "who": "rand",
+            "k": 1
+          }
+        },
+        {
+          "loseAff": {
+            "who": "rand",
+            "k": 1
+          }
+        }
+      ],
+      "hp": 5
+    },
+    "Kobold Thief": {
+      "cat": "Minion",
+      "text": "The Player with the most Cards discards 2 Cards, or discard 3 Cards collectively",
+      "bfx": [
+        {
+          "discardCollective": 3
+        }
+      ],
+      "hp": 5
+    },
+    "Wyrm": {
+      "cat": "Minion",
+      "text": "The Player with the highest HP takes 5 DMG",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 5,
+            "who": "highHp"
+          }
+        }
+      ],
+      "hp": 8
+    },
+    "Wyrmling": {
+      "cat": "Minion",
+      "text": "1 Player takes 4 DMG. 1 Player discards 1 Card",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 4,
+            "who": "rand",
+            "k": 1
+          }
+        },
+        {
+          "discard": {
+            "who": "rand",
+            "n": 1,
+            "k": 1
+          }
+        }
+      ],
+      "hp": 6
+    },
+    "Bully the Weak": {
+      "cat": "Boss",
+      "text": "The Player with the lowest Affinity takes 5 DMG",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 5,
+            "who": "lowAff"
+          }
+        }
+      ]
+    },
+    "Critical Hit": {
+      "cat": "Disaster",
+      "text": "The Player with the lowest HP takes 5 DMG",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 5,
+            "who": "lowHp"
+          }
+        }
+      ]
+    },
+    "Kobold": {
+      "cat": "Minion",
+      "text": "The Village takes 3 DMG. 1 Player discards 1 Card",
+      "bfx": [
+        {
+          "vdmg": 3
+        },
+        {
+          "discard": {
+            "who": "rand",
+            "n": 1,
+            "k": 1
+          }
+        }
+      ],
+      "hp": 4
+    },
+    "Material Damage": {
+      "cat": "Boss",
+      "text": "2 Players discard 1 equipped Weapon or Artifact",
+      "bfx": [
+        {
+          "unequip": {
+            "who": "rand",
+            "k": 2
+          }
+        }
+      ]
+    },
+    "Tactical Retreat": {
+      "cat": "Disaster",
+      "text": "Discard the Minion with least HP, then summon 2 from the Discard Pile with full HP. Summon only 1 if no Minion was discarded",
+      "bfx": [
+        {
+          "tacticalRetreat": true
+        }
+      ]
+    },
+    "Wide Swing": {
+      "cat": "Boss",
+      "text": "All Players take 2 DMG",
+      "bfx": [
+        {
+          "pdmg": {
+            "amt": 2,
+            "who": "all"
+          }
+        }
+      ]
+    }
+  },
+  "starters": {
+    "Ranger": [
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Drain the Horde",
+      "Volley",
+      "Bow",
+      "Mana Crystal"
+    ],
+    "Paladin": [
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Divine Favor",
+      "Mana Crystal",
+      "Helping Hand",
+      "Warhammer"
+    ],
+    "Druid": [
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Call of Nature",
+      "Cycle of Life",
+      "Sickle",
+      "Mana Crystal"
+    ],
+    "Cleric": [
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Aid the Weak",
+      "Blessing of Faith",
+      "Clergy Staff",
+      "Mana Crystal"
+    ],
+    "Wizard": [
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Arcane Secrets",
+      "Arcane Retrieval",
+      "Grimoire",
+      "Mana Crystal"
+    ],
+    "Weaponmaster": [
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Martial Focus",
+      "Improvised Strike",
+      "Longsword",
+      "Mana Crystal"
+    ],
+    "Enchanter": [
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Magic Veil",
+      "Mana Crystal",
+      "Wand",
+      "Mana Crystal"
+    ],
+    "Blacksmith": [
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Blacksmith's Pride",
+      "Mana Crystal",
+      "Forge Hammer",
+      "Mana Crystal"
+    ],
+    "Bard": [
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Mana Crystal",
+      "Bardic Inspiration",
+      "Mana Crystal",
+      "Anger Management",
+      "Zither"
+    ]
+  }
+}
