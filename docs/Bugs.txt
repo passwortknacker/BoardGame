@@ -1,0 +1,28 @@
+# Bugs — fixed 2026-06-17 (playtest pass 3)
+
+All items from pass 1–2 remain fixed. Pass 3 closed the remaining known simplifications:
+
+## sim/ (Python engine)
+- [x] Mystic Offering / Sacrificial Scepter — optional destroy + tutor to discard (artifact fire)
+- [x] Timeless Talisman — postpones telegraphed boss card, self-destructs; blocked from same-turn refire
+- [x] Swapsteel Dirk / Bounty Bringer — optional destroy + tutor (were forced)
+- [x] Optional discard in headless AI — keeps Mana/Artifacts, discards rest, draws to 5
+- [x] AI direct Affinity raise — spends 3 Mana when no Affinity mana card in market
+- [x] AI tutor classes — Enchanter/Blacksmith abilities used when discard has matching cards
+- [x] `EffectContext.fired_artifact_eqs` — tracks fired artifacts; equipped artifacts removed on `consumed`
+- [x] `sim/__init__.py` — fixed broken doc pointer
+
+## game/ (web prototype)
+- [x] Full player card data from `Cards_Data.xlsx` via `export_web_cards.py` → `cards_data.js` (101 cards, 73 All-class buyable)
+- [x] Starters match `sim/build_starter()` via exported `STARTER_DECKS`
+- [x] Market pool filtered to `cls === "All"` only
+- [x] Class abilities match sim (Weaponmaster replay, Enchanter/Blacksmith discard/tutor)
+- [x] Optional destroy+tutor on Hexcores, Swapsteel, Bounty Bringer, Mystic Offering, Sacrificial Scepter
+- [x] Timeless Talisman + boss postpone
+- [x] Gear Purge discards equipped card objects correctly
+- [x] Wild Magic Flux reshuffles market
+
+## Regenerate web card data
+After editing `Cards_Data.xlsx`: `python export_web_cards.py`
+
+Add new playtest findings below.

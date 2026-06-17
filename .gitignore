@@ -1,0 +1,22 @@
+# ── Python ─────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# ── Large binary assets (card art + source documents) ──
+# Kept LOCAL only — too large for Git (see README "Assets"). Regenerate exports from data/.
+assets/
+/Image Cards.docx
+/Image Cards.pdf
+~$*
+
+# ── Generated / derived artifacts ──────────────────────
+logs/
+data/caches/
+
+# ── Editor / agent local config ────────────────────────
+.claude/settings.local.json
+.DS_Store
+Thumbs.db

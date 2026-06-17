@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Red Dragon — prototype</title>
+<style>
+  :root{
+    --bg:#15131b; --panel:#211d2b; --panel2:#2b2638; --ink:#ece8f5; --muted:#9d96b3;
+    --gold:#e6b450; --red:#e2554b; --green:#5dca85; --blue:#5aa9e6; --purple:#9b87e0;
+    --line:rgba(255,255,255,.08); --radius:10px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(120% 100% at 50% 0%,#241c2e 0%,#15131b 60%);
+    color:var(--ink);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;overflow-x:hidden}
+  #app{max-width:1080px;margin:0 auto;padding:10px 14px 120px}
+  h1{font-size:18px;font-weight:600;margin:6px 0;letter-spacing:.5px}
+  .row{display:flex;gap:10px;align-items:center}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px}
+  .bar{height:14px;border-radius:7px;background:#0d0b12;overflow:hidden;position:relative;flex:1}
+  .bar > span{position:absolute;inset:0;border-radius:7px;transition:width .5s cubic-bezier(.4,1.3,.5,1)}
+  .bar .lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:600;text-shadow:0 1px 2px #000}
+  .hpb>span{background:linear-gradient(90deg,#7a2c27,#e2554b)}
+  .vhp>span{background:linear-gradient(90deg,#2c6a4a,#5dca85)}
+  .anger>span{background:linear-gradient(90deg,#a8761b,#e6b450)}
+  /* enemy / boss */
+  #boss{display:flex;flex-direction:column;gap:8px}
+  .telegraph{font-size:12px;color:var(--gold);font-style:italic}
+  #minions{display:flex;gap:8px;flex-wrap:wrap;min-height:4px}
+  .minion{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;
+    display:flex;flex-direction:column;gap:4px;min-width:90px}
+  .minion .mhp{height:6px;border-radius:3px;background:#0d0b12;overflow:hidden}
+  .minion .mhp>span{display:block;height:100%;background:#c0573e;transition:width .4s}
+  /* heroes */
+  #heroes{display:flex;gap:8px;flex-wrap:wrap}
+  .hero{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 9px;min-width:120px;font-size:12px;opacity:.7;transition:.2s}
+  .hero.active{opacity:1;border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+  .hero.down{opacity:.35;filter:grayscale(1)}
+  .hero .nm{font-weight:600;font-size:13px}
+  .pip{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--purple);margin-right:2px;opacity:.3}
+  .pip.on{opacity:1}
+  /* slots */
+  #slots{display:flex;gap:6px;min-height:46px;align-items:center}
+  .slot{width:44px;height:44px;border-radius:8px;border:1px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted)}
+  .slot.filled{border-style:solid;background:var(--panel2);border-color:var(--purple);color:var(--purple)}
+  .slot.charging{opacity:.5}
+  /* cards */
+  #hand{display:flex;gap:8px;flex-wrap:wrap;min-height:120px}
+  .card{width:120px;min-height:108px;background:linear-gradient(180deg,#2f2a3d,#241f30);border:1px solid var(--line);
+    border-radius:10px;padding:8px;cursor:pointer;position:relative;transition:transform .12s,box-shadow .12s;display:flex;flex-direction:column;gap:4px}
+  .card:hover{transform:translateY(-6px);box-shadow:0 8px 20px rgba(0,0,0,.4);border-color:var(--gold)}
+  .card.dis{opacity:.45;cursor:not-allowed}
+  .card .cn{font-weight:600;font-size:12px;line-height:1.15}
+  .card .ct{font-size:10px;color:var(--muted);flex:1}
+  .card .cc{position:absolute;top:6px;right:8px;font-weight:700;color:var(--gold);font-size:13px}
+  .card .cat{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .card.Mana{border-top:3px solid var(--blue)} .card.Weapon{border-top:3px solid var(--red)}
+  .card.Artifact{border-top:3px solid var(--purple)} .card.Support{border-top:3px solid var(--green)}
+  /* buttons */
+  button{font-family:inherit;font-size:13px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);
+    border-radius:8px;padding:8px 12px;cursor:pointer;transition:.12s}
+  button:hover:not(:disabled){background:#3a3349;border-color:var(--gold)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--gold);color:#221a07;border-color:var(--gold);font-weight:600}
+  #bottombar{position:fixed;left:0;right:0;bottom:0;background:#1b1825;border-top:1px solid var(--line);
+    padding:10px 14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:20}
+  .mana{font-size:20px;font-weight:700;color:var(--blue)}
+  #log{height:84px;overflow-y:auto;font-size:12px;color:var(--muted);line-height:1.5}
+  #log b{color:var(--ink)}
+  /* market */
+  #market{display:none}
+  #market.open{display:block}
+  .mkrow{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0}
+  .mkcard{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:11px;width:175px;cursor:pointer}
+  .mkcard:hover:not(.dis){border-color:var(--gold)}
+  .mkcard.dis{opacity:.4;cursor:not-allowed}
+  .mkcard .mn{font-weight:600} .mkcard .mc{color:var(--gold);font-weight:700}
+  /* floating numbers */
+  .float{position:fixed;font-weight:800;font-size:22px;pointer-events:none;z-index:50;text-shadow:0 2px 4px #000;
+    animation:floatup 1s ease-out forwards}
+  @keyframes floatup{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translateY(-54px) scale(1.1)}}
+  .shake{animation:shake .3s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  /* overlays */
+  #overlay,#setup,#choice{position:fixed;inset:0;background:rgba(10,8,14,.86);display:flex;align-items:center;justify-content:center;z-index:100}
+  #overlay,#choice{display:none}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:28px 32px;text-align:center;max-width:440px}
+  .modal h2{margin:0 0 10px;font-size:24px}
+  .seg{display:flex;gap:8px;justify-content:center;margin:14px 0}
+  .seg button{width:54px}
+  .small{font-size:12px;color:var(--muted)}
+  .sectlabel{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:8px 0 2px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="row" style="justify-content:space-between">
+    <h1>🐉 Red Dragon <span class="small" id="roundlbl"></span></h1>
+    <div class="small" id="comp"></div>
+  </div>
+
+  <div class="panel" id="boss">
+    <div class="row"><b style="min-width:120px">Red Dragon</b><div class="bar hpb"><span id="bosshp"></span><div class="lbl" id="bosshplbl"></div></div></div>
+    <div class="row"><span class="small" style="min-width:120px">Anger → Disaster</span><div class="bar anger"><span id="angerb"></span><div class="lbl" id="angerlbl"></div></div></div>
+    <div class="telegraph" id="telegraph"></div>
+    <div id="minions"></div>
+  </div>
+
+  <div class="panel row" style="margin-top:10px"><b style="min-width:120px">🏰 Village</b><div class="bar vhp"><span id="vhp"></span><div class="lbl" id="vhplbl"></div></div></div>
+
+  <div class="sectlabel">Heroes</div>
+  <div id="heroes"></div>
+  <div class="panel" id="abilityinfo" style="margin-top:8px;font-size:12px"></div>
+
+  <div class="panel" style="margin-top:8px">
+    <div class="sectlabel">Equipped artifacts (fire every turn)</div>
+    <div id="slots"></div>
+  </div>
+
+  <div class="sectlabel">Hand — click a card to play (artifacts: click to equip)</div>
+  <div id="hand"></div>
+
+  <div class="panel" id="market" style="margin-top:10px">
+    <div class="row" style="justify-content:space-between"><b>Market</b><button id="closemkt">close</button></div>
+    <div id="mktbody"></div>
+  </div>
+
+  <div class="sectlabel" style="margin-top:10px">Log</div>
+  <div class="panel" id="log"></div>
+</div>
+
+<div id="bottombar">
+  <span class="small">Mana</span><span class="mana" id="manalbl">0</span>
+  <button id="btnSlot">Buy Slot</button>
+  <button id="btnAff">Raise Affinity (3)</button>
+  <button id="btnAbility">Use Ability (3)</button>
+  <button id="btnMarket">Market</button>
+  <button id="btnEnd" class="primary">End Turn ▶</button>
+</div>
+
+<div id="setup">
+  <div class="modal">
+    <h2>🐉 Red Dragon</h2>
+    <p class="small">A co-op deckbuilding boss battle. You control all heroes (hotseat). Kill the Dragon before the Village or the heroes fall.</p>
+    <div class="sectlabel">How many heroes?</div>
+    <div class="seg" id="pcount"><button data-p="2">2</button><button data-p="3">3</button><button data-p="4">4</button></div>
+    <div class="sectlabel" style="margin-top:12px">Party (sim top-10)</div>
+    <select id="compick" style="width:100%;padding:8px;border-radius:8px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);font-size:13px"></select>
+    <button class="primary" id="btnStart" style="width:100%;margin-top:14px" disabled>Start battle</button>
+    <p class="small" style="margin-top:10px">Default party is #1 from 1000-game sim ranking (TUNED config).</p>
+  </div>
+</div>
+
+<div id="overlay"><div class="modal"><h2 id="ovtitle"></h2><p class="small" id="ovsub"></p><button class="primary" onclick="location.reload()">Play again</button></div></div>
+
+<div id="choice" style="display:none">
+  <div class="modal" style="max-width:520px;text-align:left">
+    <h2 id="chtitle" style="text-align:center"></h2>
+    <div id="chbody"></div>
+  </div>
+</div>
+
+<script src="cards_data.js"></script>
+<script src="top_combos.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
