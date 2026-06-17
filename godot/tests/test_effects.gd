@@ -18,6 +18,7 @@ func _initialize() -> void:
 	_test_abilities()
 	_test_boss_ops()
 	_test_deferred_ops()
+	_test_engine_misc()
 	_test_end_conditions()
 	print("== %d passed, %d failed ==" % [passed, failed])
 	quit(1 if failed > 0 else 0)
@@ -164,6 +165,28 @@ func _test_deferred_ops() -> void:
 	g3.anger = 5
 	_apply(g3, g3.players[0], [{"pacifier": true}])
 	eq(g3.anger, 3, "Pacifier: anger -2")
+
+func _test_engine_misc() -> void:
+	# Level-up: emptying the boss deck recycles the discard and bumps boss_level (+2 HP/minion).
+	var g := _mkgame()
+	g.boss_deck = []
+	g.boss_discard = ["Kobold"]
+	var flipped = g._flip()
+	eq(g.boss_level, 1, "boss deck cycle -> level up")
+	ok(flipped != null, "flip returns a card after recycle")
+	eq(g.minion_hp_for("Kobold"), CardDB.minion_base_hp("Kobold") + 2, "minion HP +2 per boss level")
+	# With 2+ minions on board, a non-lethal hit still strikes the lowest minion (clears crowds).
+	var g2 := _mkgame()
+	g2.minions.append(Game.Minion.new("Wyrm", 8))
+	g2.minions.append(Game.Minion.new("Kobold", 4))
+	_apply(g2, g2.players[0], [{"dmg": 3}])
+	eq(g2.minions[1].hp, 1, "2+ minions: lowest minion takes the hit (4->1)")
+	eq(g2.boss, 60, "boss untouched while a crowd of minions stands")
+	# Healing revives a downed (0 HP) hero before topping up an injured one.
+	var g3 := _mkgame()
+	g3.players[0].hp = 0
+	g3.players[1].hp = 6
+	eq(g3.lowest_heal_target().pid, 0, "lowest_heal_target picks the downed hero first")
 
 func _test_end_conditions() -> void:
 	var g := _mkgame()

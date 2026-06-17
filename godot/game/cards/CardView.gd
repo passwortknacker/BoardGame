@@ -16,22 +16,53 @@ const CAT_COLOR := {
 	"Support": Color(0.26, 0.70, 0.42),
 }
 
+## Drag a card above this Y (viewport coords) to play it; release lower snaps it back.
+const PLAY_THRESHOLD := 640.0
+const DRAG_DEADZONE := 8.0
+
 var card_name := ""
 var base_y := 0.0
+var _dragging := false
+var _moved := false
+var _home := Vector2.ZERO
+var _grab := Vector2.ZERO
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(W, H)
 	size = Vector2(W, H)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_build()
-	mouse_entered.connect(func(): Juice.hover_in(self))
-	mouse_exited.connect(func(): Juice.hover_out(self, base_y))
+	mouse_entered.connect(func(): if not _dragging: Juice.hover_in(self))
+	mouse_exited.connect(func(): if not _dragging: Juice.hover_out(self, base_y))
 	gui_input.connect(_on_gui_input)
 
 func _on_gui_input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT and e.pressed:
-		AudioManager.play_sfx("ui_click")
-		pressed.emit(card_name)
+		_dragging = true
+		_moved = false
+		_home = Vector2(position.x, base_y)
+		_grab = get_global_mouse_position() - position
+		z_index = 50
+
+## While dragging we listen globally so motion/release outside the card still register.
+func _input(e: InputEvent) -> void:
+	if not _dragging:
+		return
+	if e is InputEventMouseMotion:
+		var target := get_global_mouse_position() - _grab
+		if target.distance_to(_home) > DRAG_DEADZONE:
+			_moved = true
+		position = target
+	elif e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT and not e.pressed:
+		_dragging = false
+		z_index = 0
+		# a quick click (no real drag) OR a drag up into the play zone = play
+		if not _moved or position.y < PLAY_THRESHOLD:
+			AudioManager.play_sfx("ui_click")
+			pressed.emit(card_name)
+		else:
+			create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT) \
+				.tween_property(self, "position", _home, 0.18)
 
 func _build() -> void:
 	var cat := CardDB.cat(card_name)
