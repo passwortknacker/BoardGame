@@ -13,6 +13,9 @@ var boss_max := 1
 # HUD nodes
 var boss_bar: ProgressBar
 var boss_label: Label
+var anger_bar: ProgressBar
+var anger_label: Label
+var minion_row: Control
 var telegraph: Label
 var hud: Label
 var mana_label: Label
@@ -45,7 +48,7 @@ func _build_ui() -> void:
 	title.position = Vector2(36, 18)
 	add_child(title)
 
-	boss_panel = _panel(Vector2(660, 80), Vector2(600, 220), Color(0.18, 0.08, 0.08), Color(0.8, 0.3, 0.2))
+	boss_panel = _panel(Vector2(660, 80), Vector2(600, 300), Color(0.18, 0.08, 0.08), Color(0.8, 0.3, 0.2))
 	add_child(boss_panel)
 	var crest := _label("RED DRAGON", 28, Vector2(40, 18), Vector2(520, 36))
 	crest.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -56,9 +59,24 @@ func _build_ui() -> void:
 	boss_label = _label("", 20, Vector2(40, 98), Vector2(520, 34))
 	boss_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	boss_panel.add_child(boss_label)
-	telegraph = _label("", 15, Vector2(40, 150), Vector2(520, 50))
+	anger_label = _label("ANGER", 13, Vector2(40, 150), Vector2(120, 18))
+	boss_panel.add_child(anger_label)
+	anger_bar = ProgressBar.new()
+	anger_bar.position = Vector2(150, 150); anger_bar.size = Vector2(410, 18); anger_bar.show_percentage = false
+	var afill := StyleBoxFlat.new(); afill.bg_color = Color(0.9, 0.5, 0.1); afill.set_corner_radius_all(4)
+	anger_bar.add_theme_stylebox_override("fill", afill)
+	boss_panel.add_child(anger_bar)
+	telegraph = _label("", 15, Vector2(40, 174), Vector2(520, 40))
 	telegraph.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	boss_panel.add_child(telegraph)
+
+	var minion_caption := _label("MINIONS", 12, Vector2(40, 210), Vector2(200, 16))
+	boss_panel.add_child(minion_caption)
+	# minions occupy a strip in the lower boss panel
+	minion_row = Control.new()
+	minion_row.position = Vector2(20, 228)
+	minion_row.size = Vector2(560, 62)
+	boss_panel.add_child(minion_row)
 
 	hud = _label("", 18, Vector2(40, 110), Vector2(560, 220))
 	add_child(hud)
@@ -77,15 +95,15 @@ func _build_ui() -> void:
 	hand_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(hand_root)
 
-	_button("Market", Vector2(660, 320), _toggle_market)
-	_button("Affinity (3)", Vector2(790, 320), _raise_affinity)
-	_button("Ability (3)", Vector2(950, 320), _use_ability)
-	_button("Buy Slot", Vector2(1100, 320), _buy_slot)
+	_button("Market", Vector2(660, 400), _toggle_market)
+	_button("Affinity (3)", Vector2(790, 400), _raise_affinity)
+	_button("Ability (3)", Vector2(950, 400), _use_ability)
+	_button("Buy Slot", Vector2(1100, 400), _buy_slot)
 	_button("END TURN ▶", Vector2(1080, 980), _end_turn, Vector2(180, 50))
 	_button("New Game", Vector2(40, 980), _new_game)
 	_button("Menu", Vector2(200, 980), func(): get_tree().change_scene_to_file("res://game/Setup.tscn"))
 
-	market_panel = _panel(Vector2(660, 380), Vector2(600, 470), Color(0.10, 0.12, 0.16), Color(0.4, 0.5, 0.7))
+	market_panel = _panel(Vector2(660, 460), Vector2(600, 400), Color(0.10, 0.12, 0.16), Color(0.4, 0.5, 0.7))
 	market_panel.visible = false
 	add_child(market_panel)
 	var mtitle := _label("MARKET — click to buy (under your deck)", 16, Vector2(16, 10), Vector2(560, 24))
@@ -300,7 +318,12 @@ func _refresh() -> void:
 	var shown: int = max(0, game.boss)
 	boss_bar.create_tween().tween_property(boss_bar, "value", float(shown), 0.3)
 	boss_label.text = "%d / %d HP" % [shown, boss_max]
+	var threshold: int = game.players.size() + 2
+	anger_bar.max_value = threshold
+	anger_bar.value = game.anger
+	anger_label.text = "ANGER %d/%d" % [game.anger, threshold]
 	telegraph.text = "Next boss card: %s" % (game.boss_deck[0] if not game.boss_deck.is_empty() else "—")
+	_rebuild_minions()
 	mana_label.text = "✦ Mana available: %d" % _mana_left()
 	var eq: Array = []
 	for e in me.equipped: eq.append(e.card_name)
@@ -310,6 +333,18 @@ func _refresh() -> void:
 		me.cls, me.hp, game.PLAYER_HP, me.affinity, me.equipped.size(), me.slots,
 		", ".join(ally_txt) if ally_txt else "(solo)", game.village, game.village_max, game.anger,
 		game.minions.size(), game.round_no, ", ".join(eq) if eq else "—"]
+
+func _rebuild_minions() -> void:
+	for c in minion_row.get_children(): c.queue_free()
+	var x := 0
+	for m in game.minions:
+		var pn := _panel(Vector2(x, 0), Vector2(132, 58), Color(0.16, 0.10, 0.10), Color(0.7, 0.4, 0.3))
+		minion_row.add_child(pn)
+		var l := _label("%s\n%d HP" % [m.card_name, m.hp], 13, Vector2(6, 6), Vector2(120, 48))
+		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		pn.add_child(l)
+		x += 140
+		if x > 560: break   # overflow guard for very crowded boards
 
 var _log_lines: Array = []
 func _log(s: String) -> void:
