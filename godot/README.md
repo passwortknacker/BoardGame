@@ -50,7 +50,7 @@ godot/
   engine/                ← AUTHORITATIVE headless rules (no rendering, deterministic)
     CardDB.gd            ← loads cards.json into static lookups (name -> data)
     RNG.gd               ← seeded RNG; the determinism contract (seed -> identical game)
-    Game.gd              ← state + models (Player/Minion/Equip/Ctx), market, combat, turn/round loop
+    Game.gd              ← state + models, market, combat, turn/round loop, schema-versioned save/restore
     Effects.gd           ← data-driven fx resolver (player cards) + bfx resolver (boss/minion/disaster)
     Abilities.gd         ← class abilities + ultimates
     AI.gd                ← heuristic policy (drives headless sims; "suggested move" baseline for UI)
@@ -87,11 +87,16 @@ mana-scaling, dmg-scaling, discard retrieval with the 1×/turn cap, tutors, refi
 villageReduce, optional destroy, pass-wisp, fate/genesis, pacifier, etc.) — `run_headless` reports
 zero approximated ops. `g.warnings` remains as a guard for any future unmapped op.
 
-**Presentation scaffold (this pass):** event bus, audio manager + bus layout + placeholder SFX,
-juice helpers, an animated `CardView`, and an engine-driven feel demo. Real art/audio, the full
-board UI, drag-to-play & target/choice pickers, meta (shop/progression/saves), localization, and
-Steam/mobile export are still ahead — see `assets/ART_DIRECTION.md` and `../docs/GAME_PLAN.md`
-Phases 2–5.
+**Presentation:** event bus, audio manager + bus layout + placeholder SFX, juice helpers, an
+animated `CardView` with **drag-to-play**, and an engine-driven **vertical-slice turn-loop demo**.
+
+**Save system foundation:** `Game.snapshot()/restore()` + `save_to_file()/load_from_file()` —
+schema-versioned (with a `data_version` stamp + migration guard) and RNG-state-exact, so a save
+resumes deterministically (verified through a JSON round-trip). Migration logic lands with Phase 3.
+
+**Still ahead:** real art/audio, the full board UI, target/choice pickers, multi-hotseat, meta
+(shop/progression), localization, and Steam/mobile export — see `assets/ART_DIRECTION.md` and
+`../docs/GAME_PLAN.md` Phases 2–5.
 
 ## Engine balance snapshot (30 games/combo, `rank_combos.gd`)
 Top comps the **Godot engine** itself produces (Cleric is near-mandatory; 2p is hardest — matching

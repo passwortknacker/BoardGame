@@ -422,3 +422,62 @@ func run() -> Dictionary:
 		if p.alive(): alive_count += 1
 	return {"result": result, "round": round_no, "village": village, "boss": boss,
 		"P": P, "alive": alive_count, "warnings": warnings}
+
+# ================= save / restore (schema-versioned; designed for migration from day one) =================
+const SCHEMA_VERSION := 1
+
+## Full serializable game state. Snapshots are taken between turns (transient ctx is not saved).
+## The RNG position is stored as a String so a JSON round-trip can't lose 64-bit precision.
+func snapshot() -> Dictionary:
+	var ps: Array = []
+	for p in players:
+		var eqs: Array = []
+		for e in p.equipped: eqs.append({"card": e.card_name, "fire": e.fires_from_turn})
+		ps.append({"pid": p.pid, "cls": p.cls, "strategy": p.strategy, "hp": p.hp, "aff": p.affinity,
+			"slots": p.slots, "turn_no": p.turn_no, "prevent": p.prevent,
+			"deck": p.deck.duplicate(), "discard": p.discard.duplicate(), "hand": p.hand.duplicate(),
+			"equipped": eqs})
+	var mins: Array = []
+	for m in minions: mins.append({"card": m.card_name, "hp": m.hp})
+	return {
+		"schema_version": SCHEMA_VERSION, "data_version": CardDB.version, "rng": str(rng.get_state()),
+		"players": ps, "village": village, "village_max": village_max, "village_prevent": village_prevent,
+		"boss": boss, "anger": anger, "anger_step": anger_step, "boss_level": boss_level,
+		"boss_deck": boss_deck.duplicate(), "boss_discard": boss_discard.duplicate(),
+		"disaster_pile": disaster_pile.duplicate(), "disaster_discard": disaster_discard.duplicate(),
+		"minions": mins, "round_no": round_no, "no_buy": no_buy, "result": result,
+		"market": market.duplicate(true), "postpone_boss": _postpone_boss,
+	}
+
+## Load a snapshot. Returns false on an unmigratable schema (callers can branch to migration).
+func restore(s: Dictionary) -> bool:
+	if int(s.get("schema_version", 0)) != SCHEMA_VERSION:
+		push_warning("Game.restore: schema v%s != current v%d — migration needed" % [str(s.get("schema_version")), SCHEMA_VERSION])
+		return false
+	rng.set_state(int(s["rng"]))
+	players = []
+	for pd in s["players"]:
+		var p := Player.new(int(pd["pid"]), pd["cls"], [])
+		p.strategy = pd["strategy"]; p.hp = int(pd["hp"]); p.affinity = int(pd["aff"]); p.slots = int(pd["slots"])
+		p.turn_no = int(pd["turn_no"]); p.prevent = int(pd["prevent"])
+		p.deck = (pd["deck"] as Array).duplicate(); p.discard = (pd["discard"] as Array).duplicate(); p.hand = (pd["hand"] as Array).duplicate()
+		for e in pd["equipped"]: p.equipped.append(Equip.new(e["card"], int(e["fire"])))
+		players.append(p)
+	village = int(s["village"]); village_max = int(s["village_max"]); village_prevent = int(s["village_prevent"])
+	boss = int(s["boss"]); anger = int(s["anger"]); anger_step = int(s["anger_step"]); boss_level = int(s["boss_level"])
+	boss_deck = (s["boss_deck"] as Array).duplicate(); boss_discard = (s["boss_discard"] as Array).duplicate()
+	disaster_pile = (s["disaster_pile"] as Array).duplicate(); disaster_discard = (s["disaster_discard"] as Array).duplicate()
+	minions = []
+	for md in s["minions"]: minions.append(Minion.new(md["card"], int(md["hp"])))
+	round_no = int(s["round_no"]); no_buy = bool(s["no_buy"]); result = s["result"]
+	market = (s["market"] as Array).duplicate(true); _postpone_boss = bool(s["postpone_boss"])
+	return true
+
+func save_to_file(path: String) -> void:
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	if f: f.store_string(JSON.stringify(snapshot(), "  "))
+
+func load_from_file(path: String) -> bool:
+	if not FileAccess.file_exists(path): return false
+	var data = JSON.parse_string(FileAccess.get_file_as_string(path))
+	return restore(data) if typeof(data) == TYPE_DICTIONARY else false

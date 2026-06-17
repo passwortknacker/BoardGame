@@ -19,6 +19,7 @@ func _initialize() -> void:
 	_test_boss_ops()
 	_test_deferred_ops()
 	_test_engine_misc()
+	_test_save_restore()
 	_test_end_conditions()
 	print("== %d passed, %d failed ==" % [passed, failed])
 	quit(1 if failed > 0 else 0)
@@ -187,6 +188,34 @@ func _test_engine_misc() -> void:
 	g3.players[0].hp = 0
 	g3.players[1].hp = 6
 	eq(g3.lowest_heal_target().pid, 0, "lowest_heal_target picks the downed hero first")
+
+func _test_save_restore() -> void:
+	# Advance a real game a couple of rounds, snapshot mid-game, then resume two ways and require
+	# identical outcomes — proves save/restore + RNG-state capture give a deterministic resume.
+	var g1 := Game.new(123)
+	g1.setup(2)
+	for _r in range(2):
+		g1.player_turn(g1.players[0]); g1.player_turn(g1.players[1])
+		g1.boss_turn(); g1.minions_attack()
+	var snap := g1.snapshot()
+	eq(snap["schema_version"], Game.SCHEMA_VERSION, "snapshot carries schema_version")
+	# resume via in-memory restore
+	var g2 := Game.new(999)
+	ok(g2.restore(snap), "restore accepts a current-schema snapshot")
+	# resume via a JSON round-trip (catches 64-bit RNG precision loss — state is stored as String)
+	var g3 := Game.new(7)
+	var reparsed = JSON.parse_string(JSON.stringify(snap))
+	ok(g3.restore(reparsed), "restore from JSON round-trip")
+	var a := g1.run()
+	var b := g2.run()
+	var c := g3.run()
+	ok(a["result"] == b["result"] and a["round"] == b["round"] and a["boss"] == b["boss"],
+		"in-memory restore resumes identically")
+	ok(a["result"] == c["result"] and a["round"] == c["round"] and a["boss"] == c["boss"],
+		"JSON-roundtrip restore resumes identically")
+	# schema guard rejects an unknown future version
+	var bad := snap.duplicate(); bad["schema_version"] = 999
+	ok(not Game.new(1).restore(bad), "restore rejects a mismatched schema_version")
 
 func _test_end_conditions() -> void:
 	var g := _mkgame()

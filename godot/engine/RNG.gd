@@ -9,6 +9,13 @@ var _rng := RandomNumberGenerator.new()
 func _init(seed_value: int = 0) -> void:
 	_rng.seed = seed_value
 
+## Exact generator position — captured/restored for save+resume determinism.
+func get_state() -> int:
+	return _rng.state
+
+func set_state(s: int) -> void:
+	_rng.state = s
+
 ## Inclusive integer in [a, b].
 func randi_range(a: int, b: int) -> int:
 	return _rng.randi_range(a, b)
