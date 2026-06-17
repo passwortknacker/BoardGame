@@ -10,9 +10,17 @@ Godot **4.3+** (standard, GDScript — no C#/.NET needed).
 
 ## Run it
 - **Editor:** open `godot/project.godot` in Godot and press Play. The main scene (`game/Demo.tscn`)
-  is an interactive **feel demo** driven by the real engine: a fanned hand of animated cards, click
-  to play (hover-lift, play-fly, floating combat numbers, screenshake), a tweened boss HP bar with
-  telegraph, and procedural SFX. It's the presentation reference, not the final board UI.
+  is an interactive **vertical-slice demo** driven by the real engine — a full co-op turn:
+  - You control hero 0 (Cleric); play cards from a fanned, animated hand (hover-lift, play-fly,
+    floating combat numbers, screenshake, SFX).
+  - **Mana is a real resource** — play Mana cards to fill the pool, spend it via the **Market**
+    drawer (buy cards, slots refill), **Raise Affinity**, **Use Ability**, or **Buy Slot**.
+  - Equip Artifacts into slots (they fire at the start of your next turn).
+  - **End Turn** → the AI ally (Paladin) takes its turn, then the Red Dragon responds (boss card +
+    Anger/Disaster + minion attacks), with a tweened boss HP bar + telegraph and a running log.
+
+  It's the presentation reference the full board UI grows from (drag-to-play, targeting, multi-
+  hotseat, and the art/audio pass are next).
 - **Headless tests** (the analogue of `python -m sim.validate` + `run_sim.py`):
   ```
   godot --headless --path godot --import                       # first run only: builds the class cache
