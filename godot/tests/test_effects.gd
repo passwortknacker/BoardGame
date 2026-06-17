@@ -17,6 +17,7 @@ func _initialize() -> void:
 	_test_market()
 	_test_abilities()
 	_test_boss_ops()
+	_test_boss_ops_more()
 	_test_deferred_ops()
 	_test_engine_misc()
 	_test_scaling_cards()
@@ -147,6 +148,35 @@ func _test_boss_ops() -> void:
 	var g2 := _mkgame()
 	Effects.resolve_boss(g2, "Wide Swing")
 	ok(g2.players[0].hp == 8 and g2.players[1].hp == 8, "Wide Swing: all heroes -2")
+
+func _test_boss_ops_more() -> void:
+	# Rising Hostility: village -3 AND anger +2
+	var g := _mkgame()
+	Effects.resolve_boss(g, "Rising Hostility")
+	eq(g.village, 37, "Rising Hostility: village -3")
+	eq(g.anger, 3, "Rising Hostility: anger +2 (1->3)")
+	# Trade Block: buying is blocked this round
+	var g2 := _mkgame()
+	Effects.resolve_boss(g2, "Trade Block")
+	ok(g2.no_buy, "Trade Block sets no_buy")
+	# Minion Onslaught: village takes 1 + 2*minions
+	var g3 := _mkgame()
+	g3.minions.append(Game.Minion.new("Kobold", 4))
+	g3.minions.append(Game.Minion.new("Wyrm", 8))
+	Effects.resolve_boss(g3, "Minion Onslaught")
+	eq(g3.village, 40 - (1 + 2 * 2), "Minion Onslaught: village -(1 + 2*minions)")
+	# Material Damage: 2 random heroes lose an equipped artifact (both, with 2 living)
+	var g4 := _mkgame()
+	g4.players[0].equipped.append(Game.Equip.new("Ethereal Fragment", 0))
+	g4.players[1].equipped.append(Game.Equip.new("Ethereal Fragment", 0))
+	Effects.resolve_boss(g4, "Material Damage")
+	ok(g4.players[0].equipped.is_empty() and g4.players[1].equipped.is_empty(), "Material Damage strips equipped artifacts")
+	# Reawakening: revive a minion from the boss discard back onto the field
+	var g5 := _mkgame()
+	g5.boss_discard = ["Kobold"]
+	Effects.resolve_boss(g5, "Reawakening")
+	eq(g5.minions.size(), 1, "Reawakening revives a minion from discard")
+	ok(g5.boss_discard.is_empty(), "Reawakening removes the revived minion from discard")
 
 func _test_deferred_ops() -> void:
 	var g := _mkgame()
