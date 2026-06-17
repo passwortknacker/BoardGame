@@ -110,6 +110,7 @@ class EffectContext:
     consumed: bool = False        # destroys played card or equipped artifact (removed from game)
     fired_artifact_eqs: set = field(default_factory=set)   # scheduled turn-start fires
     refired_artifact_eqs: set = field(default_factory=set) # extra triggers (Wizard, Arcane Retrieval, …)
+    replayed_from_discard: set = field(default_factory=set)  # cards pulled back from discard (1×/turn cap)
 
 
 class Game:

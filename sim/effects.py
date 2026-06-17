@@ -53,8 +53,10 @@ def discard_collective(g, n):
 def lose_aff(pl):         pl.affinity = max(1, pl.affinity - 1)
 def from_discard(g, p, cat, *, optional=False, equip_ok=False):
     """Move 1 card of category cat from Discard to Hand (or equip Artifacts if equip_ok).
-    Human picks which; sims auto-pick the first."""
-    opts = [c for c in p.discard if c.category == cat]
+    Human picks which; sims auto-pick the first. A card may be pulled back at most ONCE per turn
+    (g.ctx.replayed_from_discard) — otherwise two mutual retrievers (e.g. 2× Arsenal Enforcer)
+    ping-pong forever."""
+    opts = [c for c in p.discard if c.category == cat and id(c) not in g.ctx.replayed_from_discard]
     if not opts:
         return False
     if optional:
@@ -68,6 +70,7 @@ def from_discard(g, p, cat, *, optional=False, equip_ok=False):
         chosen = g.choose(f"Move which {cat} from your Discard to your Hand?",
                           opts, default=opts[0], labeler=lambda c: c.name)
     p.discard.remove(chosen)
+    g.ctx.replayed_from_discard.add(id(chosen))   # this card can't be pulled back again this turn
     if equip_ok and cat == "Artifact" and len(p.equipped) < p.slots:
         mode = g.choose("Add to hand or equip now?", ["equip", "hand"], default="equip",
                         labeler=lambda m: "Equip into a slot" if m == "equip" else "Add to hand")
@@ -149,8 +152,10 @@ def refire(g, p, x, n=1):
     return count
 
 def replay_weapon_from_discard(g, p, x):
-    c = next((c for c in p.discard if c.category == "Weapon"), None)
+    c = next((c for c in p.discard if c.category == "Weapon"
+              and id(c) not in x.replayed_from_discard), None)
     if c:
+        x.replayed_from_discard.add(id(c))   # 1×/turn cap (no infinite replay chains)
         p.discard.remove(c); x.weapons_played += 1; EFFECTS[c.name](g, p, x); return True
     return False
 
