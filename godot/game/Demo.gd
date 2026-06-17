@@ -29,6 +29,8 @@ var end_label: Label
 const HAND_Y := 770.0
 const SPACING := 116.0
 
+var _turn_snap: Dictionary = {}   # state at the start of your turn (for Undo)
+
 func _ready() -> void:
 	if not CardDB.ensure_loaded():
 		var err := Label.new()
@@ -102,6 +104,7 @@ func _build_ui() -> void:
 	_button("Ability (3)", Vector2(950, 400), _use_ability)
 	_button("Buy Slot", Vector2(1100, 400), _buy_slot)
 	_button("END TURN ▶", Vector2(1080, 980), _end_turn, Vector2(180, 50))
+	_button("Undo Turn", Vector2(900, 980), _undo)
 	_button("New Game", Vector2(40, 980), _new_game)
 	_button("Menu", Vector2(200, 980), func(): get_tree().change_scene_to_file("res://game/Setup.tscn"))
 
@@ -177,6 +180,7 @@ func _start_my_turn() -> void:
 			if game.dmg_accum > 0:
 				_log("%s fires (%d dmg)" % [eq.card_name, game.dmg_accum])
 	me.draw_to_full(game.HAND_SIZE)
+	_turn_snap = game.snapshot()   # checkpoint for Undo (state right after drawing)
 	_relayout_hand()
 	_refresh()
 
@@ -272,6 +276,17 @@ func _play_card(card_name: String, card: CardView) -> void:
 		Juice.float_text(self, Vector2(330, 200), "Village +%d" % (game.village - v_before), Color(0.4, 1.0, 0.5))
 	_refresh()
 	_ended()
+
+func _undo() -> void:
+	# Restore the snapshot taken at the start of your turn (reuses the save/restore engine path).
+	if _turn_snap.is_empty() or game.result != "": return
+	game.restore(_turn_snap)
+	me = game.players[0]            # restore() rebuilds player objects — re-bind references
+	allies = game.players.slice(1)
+	market_panel.visible = false
+	_log("Undo — your turn was reset")
+	_relayout_hand()
+	_refresh()
 
 func _fly_and_relayout(card: CardView) -> void:
 	Juice.fly_to(card, Vector2(card.position.x, card.position.y - 230), 0.26,
