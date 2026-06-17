@@ -30,6 +30,8 @@ Godot **4.3+** (standard, GDScript — no C#/.NET needed).
   godot --headless --path godot --script res://tests/test_effects.gd    # behavioural assertions
   godot --headless --path godot --script res://tests/rank_combos.gd     # rank class comps (engine balance)
   ```
+  Or run everything with one command (auto-finds Godot via `$env:GODOT`, PATH, or
+  `%LOCALAPPDATA%\Godot`): `pwsh tools/run_godot_tests.ps1`.
   **Verified on Godot 4.3** — `run_headless` passes (coverage, determinism, 200 smoke games, **all
   effect ops implemented**; role-comp win rates ≈ 2p 20% / 3p 56% / 4p 45%, consistent with the
   Python sim's randomized market). `test_effects` passes 40 behavioural assertions (combat,
