@@ -23,6 +23,8 @@ var hand_root: Control
 var boss_panel: Panel
 var market_panel: Panel
 var log_label: Label
+var end_overlay: Panel
+var end_label: Label
 
 const HAND_Y := 770.0
 const SPACING := 116.0
@@ -109,6 +111,25 @@ func _build_ui() -> void:
 	var mtitle := _label("MARKET — click to buy (under your deck)", 16, Vector2(16, 10), Vector2(560, 24))
 	market_panel.add_child(mtitle)
 
+	# end-of-game overlay (hidden until win/lose)
+	end_overlay = _panel(Vector2(660, 300), Vector2(600, 280), Color(0.05, 0.05, 0.08, 0.97), Color(0.8, 0.7, 0.3))
+	end_overlay.z_index = 200
+	end_overlay.visible = false
+	add_child(end_overlay)
+	end_label = _label("", 40, Vector2(20, 50), Vector2(560, 60))
+	end_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	end_overlay.add_child(end_label)
+	var again := Button.new()
+	again.text = "New Game"; again.size = Vector2(200, 56); again.position = Vector2(70, 160)
+	again.add_theme_font_size_override("font_size", 22)
+	again.pressed.connect(func(): AudioManager.play_sfx("ui_click"); _new_game())
+	end_overlay.add_child(again)
+	var menu := Button.new()
+	menu.text = "Back to Menu"; menu.size = Vector2(200, 56); menu.position = Vector2(330, 160)
+	menu.add_theme_font_size_override("font_size", 22)
+	menu.pressed.connect(func(): get_tree().change_scene_to_file("res://game/Setup.tscn"))
+	end_overlay.add_child(menu)
+
 func _panel(pos: Vector2, sz: Vector2, bg: Color, border: Color) -> Panel:
 	var pn := Panel.new()
 	var sb := StyleBoxFlat.new()
@@ -138,6 +159,7 @@ func _new_game() -> void:
 	allies = game.players.slice(1)
 	boss_max = game.boss
 	market_panel.visible = false
+	end_overlay.visible = false
 	var ally_names: Array = []
 	for a in allies: ally_names.append(a.cls)
 	_log("New game — you are the %s. AI allies: %s." % [me.cls, ", ".join(ally_names) if ally_names else "(none)"])
@@ -183,12 +205,12 @@ func _end_turn() -> void:
 
 func _ended() -> bool:
 	if game.check_end():
-		if game.result == "win":
-			AudioManager.play_sfx("victory")
-			Juice.float_text(self, Vector2(900, 180), "VICTORY!", Color(1, 0.9, 0.4), 56)
-		else:
-			AudioManager.play_sfx("defeat")
-			Juice.float_text(self, Vector2(300, 200), game.result.to_upper(), Color(1, 0.4, 0.4), 48)
+		var msg := {"win": "🏆  VICTORY!", "village": "THE VILLAGE HAS FALLEN",
+			"players": "ALL HEROES HAVE FALLEN", "timeout": "OUT OF TIME"}.get(game.result, game.result)
+		end_label.text = msg
+		end_label.add_theme_color_override("font_color", Color(1, 0.9, 0.4) if game.result == "win" else Color(1, 0.45, 0.45))
+		end_overlay.visible = true
+		AudioManager.play_sfx("victory" if game.result == "win" else "defeat")
 		Events.game_over.emit(game.result)
 		_refresh()
 		return true
