@@ -120,5 +120,16 @@ The Godot 4 build foundation now exists in `godot/` (see `godot/README.md`):
 open: art budget/sourcing (see ART_DIRECTION) and confirming the per-card art pipeline before
 scaling to all 142 cards.
 
-**Next (vertical slice):** real board UI replacing the demo, drag-to-play + target/choice pickers,
-the full turn loop in-UI, art/audio pass, then meta (Phase 3).
+### Verified & expanded (v0.5.1–v0.6.6, Godot 4.3 installed)
+The engine + slice are **run and verified on Godot 4.3** (one command: `pwsh tools/run_godot_tests.ps1`):
+- **Engine:** all effect ops implemented (zero deferred); **68 behavioural assertions** +
+  smoke/determinism (`tests/run_headless.gd`, `tests/test_effects.gd`); engine combo ranking
+  (`tests/rank_combos.gd`); **schema-versioned save/restore** (RNG-exact, JSON-roundtrip deterministic).
+- **Vertical-slice battle:** menu → N-hero battle, real co-op **turn loop** (mana economy, market
+  drawer, affinity/ability/slot buys, End Turn → AI allies + boss phase), **drag-to-play** cards,
+  on-board minions + Anger meter, **Undo Turn** (save/restore-backed), win/lose overlay, procedural SFX.
+
+**Next (in priority order):** target/choice pickers (which hero to heal, which artifact to refire,
+tutor picks — needs an async intent/choice layer); art pass (card frames + Red Dragon, per
+ART_DIRECTION) and audio; then meta (Phase 3: shop/progression + save migration); localization +
+telemetry; Steam/mobile export (Phase 5).
