@@ -9,10 +9,11 @@ the UI will render.
 Godot **4.3+** (standard, GDScript — no C#/.NET needed).
 
 ## Run it
-- **Editor:** open `godot/project.godot` in Godot and press Play. The main scene (`game/Demo.tscn`)
-  is an interactive **vertical-slice demo** driven by the real engine — a full co-op turn:
-  - You control hero 0 (Cleric); play cards from a fanned, animated hand (hover-lift, play-fly,
-    floating combat numbers, screenshake, SFX).
+- **Editor:** open `godot/project.godot` in Godot and press Play. It opens the **menu**
+  (`game/Setup.tscn`) — pick 2–4 heroes and Start — then drops into the **vertical-slice battle**
+  (`game/Demo.tscn`) driven by the real engine — a full co-op turn:
+  - You control hero 1; the rest are AI allies. Play cards from a fanned, animated hand (hover-lift,
+    play-fly, floating combat numbers, screenshake, SFX).
   - **Mana is a real resource** — play Mana cards to fill the pool, spend it via the **Market**
     drawer (buy cards, slots refill), **Raise Affinity**, **Use Ability**, or **Buy Slot**.
   - **Drag a card upward to play it** (Hearthstone-style), or click it; drop low to cancel.
@@ -55,7 +56,9 @@ godot/
     Abilities.gd         ← class abilities + ultimates
     AI.gd                ← heuristic policy (drives headless sims; "suggested move" baseline for UI)
   game/                  ← PRESENTATION (renders engine state, sends intents)
-    Demo.tscn/.gd        ← interactive feel demo (real engine + animation + SFX)
+    Setup.tscn/.gd       ← menu: player count + party → battle
+    Session.gd           ← autoload carrying menu choices (and future run/meta state)
+    Demo.tscn/.gd        ← vertical-slice battle: N-player co-op turn loop (real engine + juice + SFX)
     Events.gd            ← global signal bus (autoload) — decouples juice from rules
     AudioManager.gd      ← pooled SFX / music (autoload)
     Juice.gd             ← motion primitives (hover, pop, shake, float-text, fly-to)

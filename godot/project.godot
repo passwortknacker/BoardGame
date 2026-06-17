@@ -9,13 +9,14 @@ config_version=5
 
 config/name="Red Dragon"
 config/description="Co-op deckbuilding boss-battler vs. the Red Dragon."
-run/main_scene="res://game/Demo.tscn"
+run/main_scene="res://game/Setup.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 
 [autoload]
 
 Events="*res://game/Events.gd"
 AudioManager="*res://game/AudioManager.gd"
+Session="*res://game/Session.gd"
 
 [display]
 

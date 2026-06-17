@@ -7,7 +7,7 @@ extends Control
 
 var game: Game
 var me                       # the human-controlled hero (player 0)
-var ally                     # AI hero (player 1)
+var allies: Array = []       # AI-controlled heroes (players 1..)
 var boss_max := 1
 
 # HUD nodes
@@ -83,6 +83,7 @@ func _build_ui() -> void:
 	_button("Buy Slot", Vector2(1100, 320), _buy_slot)
 	_button("END TURN ▶", Vector2(1080, 980), _end_turn, Vector2(180, 50))
 	_button("New Game", Vector2(40, 980), _new_game)
+	_button("Menu", Vector2(200, 980), func(): get_tree().change_scene_to_file("res://game/Setup.tscn"))
 
 	market_panel = _panel(Vector2(660, 380), Vector2(600, 470), Color(0.10, 0.12, 0.16), Color(0.4, 0.5, 0.7))
 	market_panel.visible = false
@@ -112,13 +113,16 @@ func _button(text: String, pos: Vector2, cb: Callable, sz := Vector2(150, 44)) -
 
 # ---------------- game flow ----------------
 func _new_game() -> void:
+	var P: int = Session.player_count if Session else 2
 	game = Game.new(randi())
-	game.setup(2, [["Cleric", "healer"], ["Paladin", "weapons"]])
+	game.setup(P, Session.team if Session else null)
 	me = game.players[0]
-	ally = game.players[1]
+	allies = game.players.slice(1)
 	boss_max = game.boss
 	market_panel.visible = false
-	_log("New game — you are the Cleric; Paladin ally is AI.")
+	var ally_names: Array = []
+	for a in allies: ally_names.append(a.cls)
+	_log("New game — you are the %s. AI allies: %s." % [me.cls, ", ".join(ally_names) if ally_names else "(none)"])
 	_start_my_turn()
 
 func _start_my_turn() -> void:
@@ -138,9 +142,10 @@ func _start_my_turn() -> void:
 
 func _end_turn() -> void:
 	if game.result != "": return
-	# AI ally takes its full turn (fire artifacts, play hand, buy, equip, draw)
-	game.player_turn(ally)
-	if _ended(): return
+	# AI allies take their full turns (fire artifacts, play hand, buy, equip, draw)
+	for a in allies:
+		game.player_turn(a)
+		if _ended(): return
 	# boss phase for the round
 	for _i in range(game.boss_turns_for(game.players.size())):
 		var v_before := game.village
@@ -299,10 +304,12 @@ func _refresh() -> void:
 	mana_label.text = "✦ Mana available: %d" % _mana_left()
 	var eq: Array = []
 	for e in me.equipped: eq.append(e.card_name)
-	hud.text = "YOU — %s   HP %d/%d   Affinity %d   Slots %d/%d\nAlly — %s   HP %d\nVillage %d/%d   Anger %d   Minions %d   Round %d\nEquipped: %s" % [
+	var ally_txt: Array = []
+	for a in allies: ally_txt.append("%s %d" % [a.cls, a.hp])
+	hud.text = "YOU — %s   HP %d/%d   Affinity %d   Slots %d/%d\nAllies — %s\nVillage %d/%d   Anger %d   Minions %d   Round %d\nEquipped: %s" % [
 		me.cls, me.hp, game.PLAYER_HP, me.affinity, me.equipped.size(), me.slots,
-		ally.cls, ally.hp, game.village, game.village_max, game.anger, game.minions.size(),
-		game.round_no, ", ".join(eq) if eq else "—"]
+		", ".join(ally_txt) if ally_txt else "(solo)", game.village, game.village_max, game.anger,
+		game.minions.size(), game.round_no, ", ".join(eq) if eq else "—"]
 
 var _log_lines: Array = []
 func _log(s: String) -> void:
